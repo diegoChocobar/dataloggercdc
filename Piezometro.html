@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset=utf-8>
+      <meta name='viewport' content='initial-scale=1, maximum-scale=1'>
+
+      <title>CDC ELECTRONICS - PIEZOMETRO</title>
+
+
+      	<style>
+          body{background:#59ABE3;margin:0}
+
+          .box{
+          	width:280px;
+          	padding:30px;
+          	border-radius:10px;
+          	margin:auto;
+          	background:#e6e6e6;
+          }
+
+          h1{margin:10px 0;padding-bottom:10px;width:100%;color:#78788c;border-bottom:3px solid #78788c}
+          input {
+            width: 100px;
+            padding: 5px;
+            color:#78788c;
+          }
+          label{
+            margin:10px 0;
+            padding-bottom:10px;
+            color:#78788c;
+          }
+
+      	</style>
+  </head>
+  <body>
+      <br>
+    <div class="box">
+
+          <h1>Piezometro</h1>
+
+        <div class="row">
+          <label>Profundidad Pozo: </label>
+          <input id= 'id_profundidad' name="id_profundidad" type="number" value ="200">
+        </div>
+        <br>
+        <div class="row">
+          <label>Zonda: </label>
+          <input id= 'id_valor' name="id_valor" type="number" value ="0" min="0">
+          <button onclick="verValor();">enviar</button>
+        </div>
+        <br>
+        <div>
+            <canvas id="myCanvas" width="280" height="280" style="border:1px solid #d3d3d3;">
+            Tu navegador no soporta el elemento CANVAS de HTML5.</canvas>
+        </div>
+    </div>
+
+    <script>
+
+        window.onload = function () {
+          let valor = Number(document.getElementById("id_valor").value);
+          let profundidad = Number(document.getElementById("id_profundidad").value);
+          //var valor = $("#id_valor").val();
+
+          var c = document.getElementById('myCanvas');                                 //Crea el nodo DOM para el elemento c (canvas)
+          var ctx = c.getContext('2d');                                                //Establece el contexto de representación (2D)
+          ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);                        //Limpia el canvas (para evitar superposiciones)
+          ctx.beginPath();                                                             //Comienza un nuevo trazado (una parte del dibujo)
+          ctx.lineWidth = 40;                                                          //Anchura de los trazos: 40 pixels
+          ctx.strokeStyle = '#87CEEB';                                                 //Color de los trazos: gris claro
+          ctx.arc(140,140,100,0.75*Math.PI,0.25*Math.PI);                              /*Trazo: arco con centro (175,175), radio 100px
+                                                                                      y ángulo de giro entre 0.75π y 0.25π rad*/
+          ctx.stroke();                                                                //Representa en pantalla el trazado
+          ctx.beginPath();                                                             //Comienza un nuevo trazado
+          ctx.strokeStyle = '#804000 ';                                                //Color de los trazos: azul cielo (sky blue)
+          //ctx.arc(175,175,100,(0.25-(1.5/3.3)*valor)*Math.PI,0.25*Math.PI);          //Trazo: arco con centro (175,175), radio 100px
+          ctx.arc(140,140,100,(0.75)*Math.PI,(0.75+(1.5/profundidad)*valor)*Math.PI);           //y ángulo de giro proporcional al voltaje medido
+                                                                                       //3.3V serán 1.5π rad.El arco termina en 0.25π rad
+          ctx.stroke();                                                                //Representa en pantalla el trazado
+          ctx.font = 'bold 30px Arial';                                                //Fuente de texto: arial, 40 px negrilla
+          ctx.fillStyle = '#804000';                                                   //Color de texto:
+          ctx.textAlign = 'center';                                                    //Posición de texto: centrado
+          ctx.fillText(valor+"m",140, 140);
+          ctx.font = 'bold 30px Arial';                                                //Fuente de texto: arial, 40 px negrilla
+          ctx.fillStyle = '#87CEEB';                                                   //Color de texto:
+          ctx.textAlign = 'center';                                                    //Posición de texto: centrado
+          ctx.fillText(profundidad-valor+"m",140, 225);
+        }
+
+        function verValor() {
+            let valor = Number(document.getElementById("id_valor").value);
+            let profundidad = Number(document.getElementById("id_profundidad").value);
+            if(valor<0){valor = 0;document.getElementById("id_valor").value=0;}
+            if(profundidad<10){profundidad = 10;;document.getElementById("id_profundidad").value=10;}
+            if(profundidad<valor){alert("Error. La profundidad del pozo ("+profundidad+") es menor que el largo de la zonda ("+valor+")");valor = profundidad;}
+            //var valor = $("#id_valor").val();
+
+            var c = document.getElementById('myCanvas');                                 //Crea el nodo DOM para el elemento c (canvas)
+            var ctx = c.getContext('2d');                                                //Establece el contexto de representación (2D)
+            ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);                        //Limpia el canvas (para evitar superposiciones)
+            ctx.beginPath();                                                             //Comienza un nuevo trazado (una parte del dibujo)
+            ctx.lineWidth = 40;                                                          //Anchura de los trazos: 40 pixels
+            ctx.strokeStyle = '#87CEEB';                                                 //Color de los trazos: gris claro
+            ctx.arc(140,140,100,0.75*Math.PI,0.25*Math.PI);                              /*Trazo: arco con centro (175,175), radio 100px
+                                                                                        y ángulo de giro entre 0.75π y 0.25π rad*/
+            ctx.stroke();                                                                //Representa en pantalla el trazado
+            ctx.beginPath();                                                             //Comienza un nuevo trazado
+            ctx.strokeStyle = '#804000 ';                                                //Color de los trazos: azul cielo (sky blue)
+            //ctx.arc(175,175,100,(0.25-(1.5/3.3)*valor)*Math.PI,0.25*Math.PI);          //Trazo: arco con centro (175,175), radio 100px
+            ctx.arc(140,140,100,(0.75)*Math.PI,(0.75+(1.5/profundidad)*valor)*Math.PI);           //y ángulo de giro proporcional al voltaje medido
+                                                                                         //3.3V serán 1.5π rad.El arco termina en 0.25π rad
+            ctx.stroke();                                                                //Representa en pantalla el trazado
+            ctx.font = 'bold 30px Arial';                                                //Fuente de texto: arial, 40 px negrilla
+            ctx.fillStyle = '#804000';                                                   //Color de texto:
+            ctx.textAlign = 'center';                                                    //Posición de texto: centrado
+            ctx.fillText(valor+"m",140, 140);
+            ctx.font = 'bold 30px Arial';                                                //Fuente de texto: arial, 40 px negrilla
+            ctx.fillStyle = '#87CEEB';                                                   //Color de texto:
+            ctx.textAlign = 'center';                                                    //Posición de texto: centrado
+            ctx.fillText(profundidad-valor+"m",140, 225);
+       }
+    </script>
+  </body>
+</html>
