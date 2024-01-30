@@ -214,13 +214,17 @@ if(!$logged){
 
     client.on('message', (topic, message) => {
 
-        let arr_topic = topic.split('/');
-        var tamaño_topic = arr_topic.length;
-        var tipo_topic = arr_topic[tamaño_topic-2];
-        var alias_topic = arr_topic[tamaño_topic-1];
+      let arr_topic = topic.split('/');
+      var tamaño_topic = arr_topic.length;
+      var top_topic = arr_topic[tamaño_topic-5];
+      var seccion_topic = arr_topic[tamaño_topic-4];
+      var subseccion_topic = arr_topic[tamaño_topic-3];
+      var tipo_topic = arr_topic[tamaño_topic-2];
+      var alias_topic = arr_topic[tamaño_topic-1];
 
       console.log('Mensaje recibido bajo tópic: ', topic, ' -> ', message.toString())
-      console.log('tamaño topic: ', tamaño_topic,'tipo: ', tipo_topic,'alias: ', alias_topic)
+      console.log('tamaño topic: ', tamaño_topic,'\ntop: ', top_topic,'\nseccion: ', seccion_topic,'\nSub seccion: ', subseccion_topic,'\ntipo: ', tipo_topic,'\nalias: ', alias_topic)
+      
       <?php
         $result = $conn->query("SELECT * FROM `devices` WHERE `id_user` = '$user_id' ");
         $devices = $result->fetch_all(MYSQLI_ASSOC);

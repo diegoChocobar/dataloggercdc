@@ -232,7 +232,7 @@ if(!$logged){
 <script type="text/javascript" src="Funciones.js?v=<?php echo $tiempo ?>"></script>
 
 
-  <!--script type="text/javascript">
+  <script type="text/javascript">
 
 
 
@@ -256,7 +256,7 @@ if(!$logged){
       // Authentication
       clientId: '<?php echo "web_" . $user_name . rand(1,999) ; ?>',
       username: '<?php echo $user_name; ?>',
-      password: '123456',
+      password: '<?php echo $user_password; ?>',
 
       keepalive: 60, //tiempo de mensaje interno hacia el brouker para avisar que estamos conectados
       clean: true,   //iniciamos en una session limpia (es una session no percistente)
@@ -264,7 +264,7 @@ if(!$logged){
 
 
     // WebSocket connect url
-    var WebSocket_URL = 'ws://cdcelectronics.online:8093/mqtt'
+    var WebSocket_URL = 'wss://dataloggercdc.com:8094/mqtt'
 
     //var client = mqtt.connect(WebSocket_URL, options)
     var client = mqtt.connect(WebSocket_URL, options)
@@ -276,7 +276,17 @@ if(!$logged){
       console.log('Conexion exito con brouker')
       <?php $_SESSION['conection_status_emqx'] = "ON"; ?>
       console.log('<?php echo $_SESSION['conection_status_emqx']; ?>')
+      top_topic = '<?php echo $user_name; ?>'+'/#';
 
+      client.subscribe(top_topic, { qos: 0 }, (error) => {
+        if (!error) {
+          console.log('Suscripción exitosa topics ->'+top_topic);
+          alert ('Suscripción exitosa topics ->'+top_topic);
+        }else{
+          console.log('Suscripción fallida!')
+          alert ('Suscripción fallida topics ->'+top_topic);
+        }
+      })
       //Subscripcion a topicos
       /*
       client.subscribe('/casa/temperatura/#', { qos: 0 }, (error) => {
@@ -309,39 +319,29 @@ if(!$logged){
         }
       })
       */
-      client.subscribe('/casa/#', { qos: 0 }, (error) => {
-        if (!error) {
-          console.log('Suscripción exitosa topics -> /casa/#')
-          alert ('Suscripción exitosa topics');
-        }else{
-          console.log('Suscripción fallida!')
-          alert ('Suscripción fallida topics -> /casa/#');
-        }
-      })
 
 
     })
 
     client.on('message', (topic, message) => {
+      
+      let arr_topic = topic.split('/');
+      var tamaño_topic = arr_topic.length;
+      var top_topic = arr_topic[tamaño_topic-5];
+      var seccion_topic = arr_topic[tamaño_topic-4];
+      var subseccion_topic = arr_topic[tamaño_topic-3];
+      var tipo_topic = arr_topic[tamaño_topic-2];
+      var alias_topic = arr_topic[tamaño_topic-1];
 
       console.log('Mensaje recibido bajo tópic: ', topic, ' -> ', message.toString())
+      console.log('tamaño topic: ', tamaño_topic,'\ntop: ', top_topic,'\nseccion: ', seccion_topic,'\nSub seccion: ', subseccion_topic,'\ntipo: ', tipo_topic,'\nalias: ', alias_topic)
 
-      if(topic == "/casa/temp/1"){
+      if(topic == "Diego Chocobar/casa/temp/1"){
         value_temp1_mqtt = message.toString();
         $("#display_temp1").html(value_temp1_mqtt);
       }
 
-      if(topic == "/casa/temp/2"){
-        value_temp2_mqtt = message.toString();
-        $("#display_temp2").html(value_temp2_mqtt);
-      }
-
-      if(topic == "/casa/tension"){
-        value_tension_mqtt = message.toString();
-        $("#display_tension").html(value_tension_mqtt);
-      }
-
-      if(topic == "/casa/led/1"){
+      if(topic == "Diego Chocobar/casa/led/1"){
         value_led_mqtt = message.toString();
         console.log("Led 1: " + value_led_mqtt);
         if(value_led_mqtt == "ON"){
@@ -351,34 +351,6 @@ if(!$logged){
           if(value_led_mqtt == "OFF"){
             $("#led1").removeClass("green");
             $("#led1").addClass("black");
-          }
-        }
-      }
-
-      if(topic == "/casa/led/2"){
-        value_led_mqtt = message.toString();
-        console.log("Led 2: " + value_led_mqtt);
-        if(value_led_mqtt == "ON"){
-          $("#led2").removeClass("black");
-          $("#led2").addClass("warn");
-        }else{
-          if(value_led_mqtt == "OFF"){
-            $("#led2").removeClass("warn");
-            $("#led2").addClass("black");
-          }
-        }
-      }
-
-      if(topic == "/casa/led/3"){
-        value_led_mqtt = message.toString();
-        console.log("Led 3: " + value_led_mqtt);
-        if(value_led_mqtt == "ON"){
-          $("#led3").removeClass("black");
-          $("#led3").addClass("warn");
-        }else{
-          if(value_led_mqtt == "OFF"){
-            $("#led3").removeClass("warn");
-            $("#led3").addClass("black");
           }
         }
       }
@@ -430,7 +402,7 @@ if(!$logged){
 
 
 
-  </script-->
+  </script>
 
 
 <!-- endbuild -->
