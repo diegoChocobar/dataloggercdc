@@ -161,8 +161,8 @@ if(!$logged){
       console.log('NO nos tenemos que conectar el brouker EMQX')
     }else{
       console.log('Conectando al brouker EMQX...')
-      console.log('<?php echo $_SESSION['conection_status_emqx']; ?>')
-      <?php $_SESSION['conection_status_emqx']="ON"; ?>
+      console.log('<?php echo "Status Conection:" . $_SESSION['conection_status_emqx']; ?>')
+      <?php //$_SESSION['conection_status_emqx']="ON"; ?>
     }
 
 
@@ -180,7 +180,7 @@ if(!$logged){
       password: '<?php echo $user_password; ?>',
 
       keepalive: 60, //tiempo de mensaje interno hacia el brouker para avisar que estamos conectados
-      clean: true,   //iniciamos en una session limpia (es una session no percistente)
+      clean: false,   //iniciamos en una session limpia (es una session no percistente)
     }
 
 
@@ -196,7 +196,7 @@ if(!$logged){
 
       console.log('Conexion exito con brouker')
       <?php $_SESSION['conection_status_emqx'] = "ON"; ?>
-      console.log('<?php echo $_SESSION['conection_status_emqx']; ?>')
+      console.log('<?php echo "Status Conection:" . $_SESSION['conection_status_emqx']; ?>')
       top_topic = '<?php echo $user_name; ?>'+'/#';
 
       client.subscribe(top_topic, { qos: 0 }, (error) => {
@@ -222,37 +222,44 @@ if(!$logged){
       var tipo_topic = arr_topic[tamaño_topic-2];
       var alias_topic = arr_topic[tamaño_topic-1];
 
-      console.log('Mensaje recibido bajo tópic: ', topic, ' -> ', message.toString())
-      console.log('tamaño topic: ', tamaño_topic,'\ntop: ', top_topic,'\nseccion: ', seccion_topic,'\nSub seccion: ', subseccion_topic,'\ntipo: ', tipo_topic,'\nalias: ', alias_topic)
+      console.log('Mensaje recibido: ',topic, ' -> ', message.toString())
       
-      <?php
-        $result = $conn->query("SELECT * FROM `devices` WHERE `id_user` = '$user_id' ");
-        $devices = $result->fetch_all(MYSQLI_ASSOC);
-       ?>
-    <?php foreach ($devices as $device ) { ?>
-      if(topic == '<?php echo $device['mqtt']; ?>'){
+      if(tamaño_topic == 5){//recibimos un mensaje con longitud/caracteristica valida
+      
+        console.log('tamaño topic: ', tamaño_topic,'\ntop: ', top_topic,'\nseccion: ', seccion_topic,'\nSub seccion: ', subseccion_topic,'\ntipo: ', tipo_topic,'\nalias: ', alias_topic)
+        
+        <?php
+          $result = $conn->query("SELECT * FROM `devices` WHERE `id_user` = '$user_id' ");
+          $devices = $result->fetch_all(MYSQLI_ASSOC);
+        ?>
+        <?php foreach ($devices as $device ) { ?>
+          if(topic == '<?php echo $device['mqtt']; ?>'){
 
-        if(alias_topic == "t1"){
-          value_temp_mqtt = message.toString();
-          $("#display_temp1").html(value_temp_mqtt);
+            if(alias_topic == "t1"){
+              value_temp_mqtt = message.toString();
+              $("#display_temp1").html(value_temp_mqtt);
+            }
+            if(alias_topic == "t2"){
+              value_temp_mqtt = message.toString();
+              $("#display_temp2").html(value_temp_mqtt);
+            }
+
+          }
+        <?php } ?>
+
+      }else{
+        console.log('Topic no Valido, la longitud no es la admitida por nuestro protocolo')
+      }
+
+        if(topic == "Dpto/temp/2"){
+          value_temp2_mqtt = message.toString();
+          $("#display_temp2").html(value_temp2_mqtt);
         }
-        if(alias_topic == "t2"){
-          value_temp_mqtt = message.toString();
-          $("#display_temp2").html(value_temp_mqtt);
+
+        if(topic == "Dpto/temp/3"){
+          value_temp3_mqtt = message.toString();
+          $("#display_temp3").html(value_temp3_mqtt);
         }
-
-      }
-    <?php } ?>
-
-      if(topic == "Dpto/temp/2"){
-        value_temp2_mqtt = message.toString();
-        $("#display_temp2").html(value_temp2_mqtt);
-      }
-
-      if(topic == "Dpto/temp/3"){
-        value_temp3_mqtt = message.toString();
-        $("#display_temp3").html(value_temp3_mqtt);
-      }
 
 
     })
@@ -269,7 +276,7 @@ if(!$logged){
     ///////////////////////////////////////////////////////////////////////////////////
     client.on('error', (error) => {
       console.log('Connect Error:', error)
-      conection_status = "OFF"
+      $_SESSION['conection_status_emqx'] = "OFF"
     })
     //*******************************************************************************
 
