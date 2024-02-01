@@ -13,10 +13,10 @@ if(isset($_POST['email']) && isset($_POST['password'])) {
 
 
     $email = strip_tags($_POST['email']);
-    $password= sha1(strip_tags($_POST['password']));
+    $password= hash("sha256",strip_tags($_POST['password']));
 
 
-    $result = $conn->query("SELECT * FROM `users` WHERE `email` = '".$email."' AND  `contraseña` = '".$password."' ");
+    $result = $conn->query("SELECT * FROM `users` WHERE `email` = '".$email."' AND  `password` = '".$password."' ");
     $users_resultados = $result->fetch_all(MYSQLI_ASSOC);
 
 
@@ -27,9 +27,9 @@ if(isset($_POST['email']) && isset($_POST['password'])) {
         if($users_resultados[0]['status'] == "1"){
           //cargo datos del usuario en variables de sesión
           $_SESSION['users_id'] = $users_resultados[0]['id'];
-          $_SESSION['users_name'] = $users_resultados[0]['nombre'];
+          $_SESSION['users_name'] = $users_resultados[0]['username'];
           $_SESSION['users_email'] = $users_resultados[0]['email'];
-          $_SESSION['users_password'] = $users_resultados[0]['contraseña'];
+          $_SESSION['users_password'] = $users_resultados[0]['password'];
           $_SESSION['conection_status_emqx'] = "OFF";
 
           $msg .= "Exito!!!";
