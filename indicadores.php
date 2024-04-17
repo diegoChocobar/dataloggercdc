@@ -56,7 +56,7 @@ if(!$logged){
 
                   <div class="row justify-content-center">
                         &nbsp
-                      <h3 class="form-label label-lg black pos-rlt m-r-xs" align="center"><b class="arrow bottom b-black pull in"></b>Lampara UV</span>
+                      <h3 class="form-label label-lg black pos-rlt m-r-xs" align="center"><b class="arrow bottom b-black pull in"></b>Lampara uv</span>
                         &nbsp
                   </div>
 
@@ -324,7 +324,7 @@ if(!$logged){
     })
 
     client.on('message', (topic, message) => {
-      
+
       let arr_topic = topic.split('/');
       var tamaño_topic = arr_topic.length;
       var top_topic = arr_topic[tamaño_topic-5];
@@ -332,14 +332,10 @@ if(!$logged){
       var subseccion_topic = arr_topic[tamaño_topic-3];
       var tipo_topic = arr_topic[tamaño_topic-2];
       var alias_topic = arr_topic[tamaño_topic-1];
+      var valor_topic = message.toString();
 
       console.log('Mensaje recibido bajo tópic: ', topic, ' -> ', message.toString())
-      console.log('tamaño topic: ', tamaño_topic,'\ntop: ', top_topic,'\nseccion: ', seccion_topic,'\nSub seccion: ', subseccion_topic,'\ntipo: ', tipo_topic,'\nalias: ', alias_topic)
-
-      if(topic == "Diego Chocobar/casa/temp/1"){
-        value_temp1_mqtt = message.toString();
-        $("#display_temp1").html(value_temp1_mqtt);
-      }
+      console.log('tamaño topic: ', tamaño_topic,'\ntop: ', top_topic,'\nseccion: ', seccion_topic,'\nSub seccion: ', subseccion_topic,'\ntipo: ', tipo_topic,'\nalias: ', alias_topic,'\nvalor_topic: ', valor_topic)
 
       if(topic == "Diego Chocobar/casa/led/1"){
         value_led_mqtt = message.toString();
@@ -351,6 +347,34 @@ if(!$logged){
           if(value_led_mqtt == "OFF"){
             $("#led1").removeClass("green");
             $("#led1").addClass("black");
+          }
+        }
+      }
+
+      if(topic == "Diego Chocobar/casa/led/2"){
+        value_led_mqtt = message.toString();
+        console.log("Led 2: " + value_led_mqtt);
+        if(value_led_mqtt == "ON"){
+          $("#led2").removeClass("black");
+          $("#led2").addClass("green");
+        }else{
+          if(value_led_mqtt == "OFF"){
+            $("#led2").removeClass("green");
+            $("#led2").addClass("black");
+          }
+        }
+      }
+
+      if(topic == "Diego Chocobar/casa/led/3"){
+        value_led_mqtt = message.toString();
+        console.log("Led 3: " + value_led_mqtt);
+        if(value_led_mqtt == "ON"){
+          $("#led3").removeClass("black");
+          $("#led3").addClass("green");
+        }else{
+          if(value_led_mqtt == "OFF"){
+            $("#led3").removeClass("green");
+            $("#led3").addClass("black");
           }
         }
       }
@@ -380,7 +404,7 @@ if(!$logged){
 
      function proceso_pulsador(x){
        var input_valor = "#input_pulsador" + x;
-       var topic_publish = "/casa/pulsador/" + x;
+       var topic_publish = "Diego Chocobar/casa/Dormitorio/interruptor/" + x;
 
 
          if($(input_valor).is(":checked")){

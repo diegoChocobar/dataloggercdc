@@ -50,45 +50,30 @@ if(!$logged){
 
           <!-- VALORES EN TIEMPO REAL -->
           <div class="row">
-            <div class="col-xs-12 col-sm-4">
-              <div class="box p-a">
-                <div class="pull-left m-r">
-                  <span class="w-48 rounded  accent">
-                    <i class="fa fa-home"></i>
-                  </span>
-                </div>
-                <div class="clear">
-                  <h4 class="m-0 text-lg _300"><b id="display_temp1">--</b><span class="text-sm"> °C</span></h4>
-                  <small class="text-muted">Temp 1</small>
-                </div>
-              </div>
-            </div>
-            <div class="col-xs-6 col-sm-4">
-              <div class="box p-a">
-                <div class="pull-left m-r">
-                  <span class="w-48 rounded primary">
-                    <i class="fa fa-home"></i>
-                  </span>
-                </div>
-                <div class="clear">
-                  <h4 class="m-0 text-lg _300"><b id="display_temp2">--</b><span class="text-sm"> °C</span></h4>
-                  <small class="text-muted">Temp 2</small>
-                </div>
-              </div>
-            </div>
-            <div class="col-xs-6 col-sm-4">
-              <div class="box p-a">
-                <div class="pull-left m-r">
-                  <span class="w-48 rounded warn">
-                    <i class="fa fa-home"></i>
-                  </span>
-                </div>
-                <div class="clear">
-                  <h4 class="m-0 text-lg _300"><b id="display_temp3">--</b><span class="text-sm"> °C</span></h4>
-                  <small class="text-muted">Temp 3</small>
-                </div>
-              </div>
-            </div>
+            <?php
+              $result = $conn->query("SELECT * FROM `devices` WHERE `id_user`='".$user_id."' AND `status`='1' order by `mqtt` ");
+              $devices = $result->fetch_all(MYSQLI_ASSOC);
+              $devices_num = count($devices);
+            ?>
+              <?php for($i=0;$i<$devices_num;$i++){ ?>
+                <?php if($devices[$i]['tipo'] == "Sensor Temperatura" ){ ?>
+                        <div class="col-xs-12 col-sm-4">
+                          <div class="box p-a">
+                            <div class="pull-left m-r">
+                              <span class="w-48 rounded  accent"  title="<?php echo $devices[$i]['lugar']."->".$devices[$i]['ubicacion'] ?>">
+                                <i class="fa fa-home"></i>
+                              </span>
+                            </div>
+                            <div class="clear">
+                              <h4 class="m-0 text-lg _300"><b id="temp_<?php echo $devices[$i]['nombre'] ?>">--</b><span class="text-sm"> °C</span></h4>
+                              <small class="text-muted">Temp <?php echo $devices[$i]['nombre'] ?></small>
+                            </div>
+                          </div>
+                        </div>
+                <?php } ?>
+
+            <?php } ?>
+
           </div>
 
         </div>
@@ -223,11 +208,11 @@ if(!$logged){
       var alias_topic = arr_topic[tamaño_topic-1];
 
       console.log('Mensaje recibido: ',topic, ' -> ', message.toString())
-      
+
       if(tamaño_topic == 5){//recibimos un mensaje con longitud/caracteristica valida
-      
-        console.log('tamaño topic: ', tamaño_topic,'\ntop: ', top_topic,'\nseccion: ', seccion_topic,'\nSub seccion: ', subseccion_topic,'\ntipo: ', tipo_topic,'\nalias: ', alias_topic)
-        
+
+        console.log('tamaño topic: ', tamaño_topic,'\ntop: ', top_topic,'\nseccion: ', seccion_topic,'\nSub seccion: ', subseccion_topic,'\ntipo: ', tipo_topic,'\nalias: ', alias_topic,'\nvalor: ', message.toString())
+
         <?php
           $result = $conn->query("SELECT * FROM `devices` WHERE `id_user` = '$user_id' ");
           $devices = $result->fetch_all(MYSQLI_ASSOC);
@@ -235,13 +220,9 @@ if(!$logged){
         <?php foreach ($devices as $device ) { ?>
           if(topic == '<?php echo $device['mqtt']; ?>'){
 
-            if(alias_topic == "t1"){
-              value_temp_mqtt = message.toString();
-              $("#display_temp1").html(value_temp_mqtt);
-            }
-            if(alias_topic == "t2"){
-              value_temp_mqtt = message.toString();
-              $("#display_temp2").html(value_temp_mqtt);
+            if(tipo_topic == "Sensor Temperatura"){
+                value_temp_mqtt = message.toString();
+                $("#temp_"+alias_topic).html(value_temp_mqtt);
             }
 
           }

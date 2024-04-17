@@ -45,7 +45,7 @@ if( isset($_POST['AgregarDispositivo']) ) {
 
   ///*
   //aquí como todo estuvo OK, resta controlar que no exista previamente el Dispositivo.
-  $result = $conn->query("SELECT * FROM `devices` WHERE `nombre` = '".$alias."' AND  `id_user` = '".$user_x."' AND  `serie` = '".$serie."' AND  `ubicacion` = '".$ubicacion."' AND  `tipo` = '".$tipo."' ");
+  $result = $conn->query("SELECT * FROM `devices` WHERE `serie` = '".$serie."' AND  `tipo` = '".$tipo."' ");
   $devicess = $result->fetch_all(MYSQLI_ASSOC);
 
   //cuento cuantos elementos tiene $devices,
