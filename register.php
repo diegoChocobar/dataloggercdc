@@ -10,57 +10,6 @@ $codigo = "";
 $password_r = "";
 $msg = "";
 
-
-if( isset($_POST['email']) && isset($_POST['usuario']) && isset($_POST['password']) && isset($_POST['password_r'])) {
-
-  $email = strip_tags($_POST['email']);
-  $user_name = strip_tags($_POST['usuario']);
-  $password = strip_tags($_POST['password']);
-  $password_r = strip_tags($_POST['password_r']);
-  $codigo = rand(0, 9999);
-
-
-  if ($password==$password_r){
-
-    //aquí como todo estuvo OK, resta controlar que no exista previamente el mail ingresado en la tabla users.
-    $result = $conn->query("SELECT * FROM `users` WHERE `email` = '".$email."' OR `username` = '".$user_name."'  ");
-    $users = $result->fetch_all(MYSQLI_ASSOC);
-
-    //cuento cuantos elementos tiene $tabla,
-    $count = count($users);
-
-    //solo si no hay un usuario con mismo mail o username, procedemos a insertar fila con nuevo usuario
-    if ($count == 0){
-      //$password = sha1($password); //encriptar clave con sha1
-      $password= hash("sha256",strip_tags($_POST['password']));
-      //$sql = "INSERT INTO `users`(`users_id`, `users_date`, `users_name`, `users_email`, `users_password`, `users_status`) VALUES (NULL, CURRENT_TIMESTAMP,'$user_name','$email','$password','0')";
-      $sql = "INSERT INTO `users`(`id`, `username`, `password`, `salt`, `is_superuser`, `fecha_creado`, `email`, `codigo`, `status`) VALUES (NULL,'$user_name','$password','0','0',CURRENT_TIMESTAMP,'$email','$codigo','0')";
-
-      if(mysqli_query($conn,$sql)){
-          $msg.=" ";
-          $msg="Usuario creado correctamente, ingrese haciendo  <a href='login.php'>clic aquí</a> <br>";
-      }else {
-          $msg.=" ";
-          $msg = "Error al cargar en base de datos";
-      }
-
-
-
-    }else{
-      $msg.=" ";
-      $msg="El mail ingresado o el usuario ya existe <br>";
-    }
-
-  }else{
-    $msg.= " ";
-    $msg = "Las claves no coinciden";
-  }
-
-}else{
-  $msg.= " ";
-  $msg = "Complete el formulario";
-}
-
  ?>
 
 
@@ -84,28 +33,28 @@ if( isset($_POST['email']) && isset($_POST['usuario']) && isset($_POST['password
 
     <div class="p-a-md box-color r box-shadow-z1 text-color m-a">
       <div class="m-b text-sm">
-        Registrar cuenta
+        Registrar cuentaa
       </div>
 
-      <form method="post" target="" name="form">
+     
         <div class="md-form-group">
-          <input name="email" type="email" class="md-input" value="<?php echo $email; ?>" required>
+          <input name="email" id="email" type="email" class="md-input" value="<?php echo $email; ?>" required>
           <label>Email</label>
         </div>
         <div class="md-form-group">
-          <input name="usuario" type="usuario" class="md-input" value="<?php echo $user_name; ?>" required>
+          <input name="usuario" id="usuario" type="usuario" class="md-input" value="<?php echo $user_name; ?>" required>
           <label>User</label>
         </div>
         <div class="md-form-group">
-          <input name="password" type="password" class="md-input" required>
+          <input name="password" id="password" type="password" class="md-input" required>
           <label>Password</label>
         </div>
         <div class="md-form-group">
-          <input name="password_r" type="password" class="md-input" required>
+          <input name="password_r" id="password_r" type="password" class="md-input" required>
           <label>Repeat Password</label>
         </div>
-        <button type="submit" class="btn primary btn-block p-x-md">Registrar</button>
-      </form>
+        <button class="btn primary btn-block p-x-md" onclick="Registrar();">Registrar</button>
+      
 
     </div>
 
@@ -153,5 +102,16 @@ if( isset($_POST['email']) && isset($_POST['usuario']) && isset($_POST['password
   <script src="libs/jquery/jquery-pjax/jquery.pjax.js"></script>
   <script src="html/scripts/ajax.js"></script>
 <!-- endbuild -->
+
+<?php $tiempo = time(); ?>
+
+<script type="text/javascript" src="register.js?v=<?php echo $tiempo ?>"></script>
+
+
+<script type="text/javascript">
+
+
+</script>
+
 </body>
 </html>

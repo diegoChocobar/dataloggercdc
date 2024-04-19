@@ -14,3 +14,12 @@ Version 1.02  --> 17/04/2024
     - Mejoramos la logica para eliminar dispositivos.
     - Agregamos boton para enviar configuración a un nuevo dispositivo
     - Realizamos cambio para comincar placa con software
+
+Version 1.03  --> 18/04/2024
+    - En register.php: 
+        modificar para que la consulta no se realice por submit.
+        modificar para que los carteles aparezcan por un alert
+    - Agregamos register.js
+        agreamos consultas para resolver el registro de nuevos usuarios
+    - Agregamos consultas.offsession.php
+        agreamos consultas para resolver el registro de nuevos usuarios
