@@ -40,7 +40,7 @@ function Registrar(){
                 if(ObjX.status === 200) {
                   //data = ObjX.responseText;
                   var data = JSON.parse(ObjX.responseText); //Parsea el Json al objeto anterior.
-
+                  //alert(ObjX.responseText);
                     if(data.status==true){
                         alert(data.data);
                         window.location.reload(true);

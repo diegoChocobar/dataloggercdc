@@ -1,6 +1,8 @@
 <?php
 
 include 'conectionDB.php';
+include 'EnviarMail.php';
+
 date_default_timezone_set('America/Argentina/Salta');
 
 
@@ -14,10 +16,13 @@ if(  isset($_POST['Registrar']) ) {
   $msg = "";
 
   $data = array();
+
   $data['status'] = true;
   $data['data'] = "";
   $data['error'] = "";
-  $data['error_cont'] = 0;
+  $data['status_email'] = false;
+  $data['data_email'] = "";
+  $data['error_email'] = "";
 
   //*
   //aquí como todo estuvo OK, resta controlar que no exista previamente el mail ingresado en la tabla users.
@@ -29,9 +34,7 @@ if(  isset($_POST['Registrar']) ) {
 
   //solo si no hay un usuario con mismo mail o username, procedemos a insertar fila con nuevo usuario
   if ($count == 0){
-    //$password = sha1($password); //encriptar clave con sha1
     $password= hash("sha256",strip_tags($_POST['password']));
-    //$sql = "INSERT INTO `users`(`users_id`, `users_date`, `users_name`, `users_email`, `users_password`, `users_status`) VALUES (NULL, CURRENT_TIMESTAMP,'$user_name','$email','$password','0')";
     $sql = "INSERT INTO `users`(`id`, `username`, `password`, `salt`, `is_superuser`, `fecha_creado`, `email`, `codigo`, `status`) VALUES (NULL,'$user_name','$password','0','0',CURRENT_TIMESTAMP,'$email','$codigo','0')";
 
     if(mysqli_query($conn,$sql)){
@@ -51,13 +54,15 @@ if(  isset($_POST['Registrar']) ) {
     //cuento cuantos elementos tiene $tabla,
     $count = count($users);
     if ($count == 0){
+        $data_email = EnviarMail_Prueba($email,$user_name);
+        $data['status_email'] = $data_email['status_email'];
         $data['error'] ="El usuario ya existe";
     }
     else{
+        $data_email = EnviarMail_Prueba($email,$user_name);
+        $data['status_email'] = $data_email['status_email'];
         $data['error'] ="El mail ingresado ya existe";
     }
-    
-    
   }
   //*/
 
