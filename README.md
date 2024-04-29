@@ -23,3 +23,10 @@ Version 1.03  --> 18/04/2024
         agreamos consultas para resolver el registro de nuevos usuarios
     - Agregamos consultas.offsession.php
         agreamos consultas para resolver el registro de nuevos usuarios
+
+Version 1.04  --> 29/04/2024
+    - Agregamos consultas.offsession.php
+        agregamos el envio de email
+    - Agregamos EnviarEmail.php
+        archivo en el que se programan los envio de email
+        
