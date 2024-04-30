@@ -40,6 +40,8 @@ if(  isset($_POST['Registrar']) ) {
     if(mysqli_query($conn,$sql)){
         $data['status'] = true;
         $data['data'] = "Usuario creado correctamente, chequear su correo electronico y confirmar via email";
+        $data_email = EnviarMail_Prueba($email,$user_name);
+        $data['status_email'] = $data_email['status_email'];
         
     }else {
       $data['status'] = false;
@@ -54,13 +56,9 @@ if(  isset($_POST['Registrar']) ) {
     //cuento cuantos elementos tiene $tabla,
     $count = count($users);
     if ($count == 0){
-        $data_email = EnviarMail_Prueba($email,$user_name);
-        $data['status_email'] = $data_email['status_email'];
         $data['error'] ="El usuario ya existe";
     }
     else{
-        $data_email = EnviarMail_Prueba($email,$user_name);
-        $data['status_email'] = $data_email['status_email'];
         $data['error'] ="El mail ingresado ya existe";
     }
   }

@@ -27,14 +27,14 @@ function EnviarMail_Prueba($email,$user_name){
           $mail->isSMTP();                              // Send using SMTP
           $mail->Host       = 'smtp.hostinger.com';     // Set the SMTP server to send through
           $mail->SMTPAuth   = true;                     // Enable SMTP authentication
-          $mail->Username   = 'inti@inforemitax.online';     // SMTP username
+          $mail->Username   = 'chocobar@cdcelectronics.com';     // SMTP username
           $mail->Password   = 'ChDi0106!';               // SMTP password
           $mail->SMTPSecure = 'ssl';         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` encouraged
           //$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
           //$mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` encouraged
           $mail->Port       = 465;                                    // TCP port to connect to, use 465 for `PHPMailer::ENCRYPTION_SMTPS` above
           //Recipients
-          $mail->setFrom('inti@inforemitax.online', 'CDC ELECTRONICS ');
+          $mail->setFrom('chocobar@cdcelectronics.com', 'CDC ELECTRONICS ');
           
           //$mail->addAddress($email);                      // Email del usuario. Es a quien se envia el mail
           $mail->addAddress($email_admin1);
@@ -63,10 +63,10 @@ function EnviarMail_Prueba($email,$user_name){
                 </head>'.
                 '<body>'
                     .'<h2>CONFIRMACION DE EMAIL</h2>'
-                    .'<br><h3>Buenos días estimado '. $user_name .', este es un email de confirmacion.</h5>'
-                    .'<br><h3>Por favor hacer click en siguiente boton para confirmar su email.</h5>'
+                    .'<br>Buenos días estimado <strong>'. $user_name .'</strong>, este es un email de confirmacion.'
+                    .'<br>Por favor hacer click en siguiente boton para confirmar su email.'
                     .'<br><br><p><a class="boton" href='.$confirmacion_email_url.' target="_blank">VALIDAR</a></p><br><br>'
-                    .'<br><h3>Desde ya muchas gracias y cualquier consulta estamos a su disposicion.</h5>'
+                    .'<br>Desde ya muchas gracias y cualquier consulta estamos a su disposicion.'
                     .'<p>
                         <br>Saludos cordiales.
                      </p>'.

@@ -43,7 +43,7 @@ $msg = "";
         </div>
         <div class="md-form-group">
           <input name="usuario" id="usuario" type="usuario" class="md-input" value="<?php echo $user_name; ?>" required>
-          <label>User</label>
+          <label>User Name</label>
         </div>
         <div class="md-form-group">
           <input name="password" id="password" type="password" class="md-input" required>
@@ -53,17 +53,13 @@ $msg = "";
           <input name="password_r" id="password_r" type="password" class="md-input" required>
           <label>Repeat Password</label>
         </div>
-        <button class="btn primary btn-block p-x-md" onclick="Registrar();">Registrar</button>
+        <button id="botton_registrar" class="btn primary btn-block p-x-md" onclick="Registrar();">Registrar</button>
       
 
     </div>
 
-
-<br><br>
-    <div style="color:red" class="">
-      <?php echo $msg ?>
-    </div>
-<br>
+    <br>
+    <br>
     <div class="p-v-lg text-center">
       <div>ya tiene cuenta? <a ui-sref="access.signin" href="login.php" class="text-primary _600">Ingresar</a></div>
     </div>

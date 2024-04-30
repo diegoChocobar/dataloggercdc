@@ -29,4 +29,7 @@ Version 1.04  --> 29/04/2024
         agregamos el envio de email
     - Agregamos EnviarEmail.php
         archivo en el que se programan los envio de email
+
+Version 1.05 --> 30/04/2024
+    - Mejoramos la logica de envio de mail para registrar un usuario
         
