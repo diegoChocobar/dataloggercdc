@@ -36,8 +36,8 @@ function EnviarMail_Prueba($email,$user_name){
           //Recipients
           $mail->setFrom('chocobar@cdcelectronics.com', 'CDC ELECTRONICS ');
           
-          //$mail->addAddress($email);                      // Email del usuario. Es a quien se envia el mail
-          $mail->addAddress($email_admin1);
+          $mail->addAddress($email);                      // Email del usuario. Es a quien se envia el mail
+          //$mail->addAddress($email_admin1);
 
 
           // Content

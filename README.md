@@ -32,4 +32,7 @@ Version 1.04  --> 29/04/2024
 
 Version 1.05 --> 30/04/2024
     - Mejoramos la logica de envio de mail para registrar un usuario
+    - Se agrego confirmacion de email para los usuarios.
+
+    
         
