@@ -34,5 +34,10 @@ Version 1.05 --> 30/04/2024
     - Mejoramos la logica de envio de mail para registrar un usuario
     - Se agrego confirmacion de email para los usuarios.
 
+Version 1.06 --> 02/05/2024
+    - Mejoramos la logica de al registrar usuario, se agrego el error cuando se produciá al agregar un usuario que contenga un "espacio" en su nombre.
+    
+
+ 
     
         

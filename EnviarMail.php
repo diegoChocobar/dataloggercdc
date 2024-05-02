@@ -13,7 +13,7 @@ function EnviarMail_Prueba($email,$user_name){
     require 'PHPMailer/src/SMTP.php';
 
     $data = array();
-    $confirmacion_email_url = "https://dataloggercdc.com/confirmacionemail.php?user=".$user_name."&email=".$email;
+    $confirmacion_email_url = "https://dataloggercdc.com/confirmacionemail.php?email=".$email;
 
     $mail = new PHPMailer(true);
 

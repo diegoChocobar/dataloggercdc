@@ -56,7 +56,7 @@ if(  isset($_POST['Registrar']) ) {
     //cuento cuantos elementos tiene $tabla,
     $count = count($users);
     if ($count == 0){
-        $data['error'] ="El usuario ya existe";
+        $data['error'] ="El nombre de usuario ya existe";
     }
     else{
         $data['error'] ="El mail ingresado ya existe";

@@ -9,14 +9,13 @@ $band="";
 $email="";
 $user="";
 
-if(isset($_GET['email']) && isset($_GET['user'])) {
+if(isset($_GET['email'])) {
 
 
     $email = strip_tags($_GET['email']);
-    $user= strip_tags($_GET['user']);
 
 
-    if($result = $conn->query("SELECT * FROM `users` WHERE `email` = '".$email."' AND  `username` = '".$user."' "))
+    if($result = $conn->query("SELECT * FROM `users` WHERE `email` = '".$email."' "))
     {
       $users_resultados = $result->fetch_all(MYSQLI_ASSOC);
       //cuento cuantos elementos tiene $tabla,
@@ -31,13 +30,15 @@ if(isset($_GET['email']) && isset($_GET['user'])) {
           if($users_resultados[0]['status'] == "0"){
               //debemos insertar check_email "1";
               $id_user = $users_resultados[0]['id'];
+              $user = $users_resultados[0]['username'];
               $actualiza = $conn->query("UPDATE `users` SET `status`='1' WHERE `id` = $id_user ");
               if($actualiza === TRUE){$band = "true";$msg .= "VALIDACION DE USUARIO EXITOSA.";}
               else{$band = "false";$msg .= "Error DB en confirmacion email.";}
           }else{
               //el usuario ya esta dado de alta en la plataforma
               $band = "true";
-              $msg .= "La validacion ya estaba confirmada.";
+              $user = $users_resultados[0]['username'];
+              $msg .= "VALIDACION DE USUARIO EXITOSA.";
           }
 
 
