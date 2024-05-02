@@ -55,7 +55,8 @@ function Registrar(){
                         document.getElementById("password").disabled = false;
                         document.getElementById("usuario").disabled = false;
                         document.getElementById("email").disabled = false;
-                        window.location.reload(true);
+                        //window.location.reload(true);
+                        window.location.replace("https://dataloggercdc.com/login.php");
                     }else{
                         alert(data.error);
                         document.getElementById("botton_registrar").disabled = false;
