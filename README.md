@@ -41,6 +41,7 @@ Version 1.06 --> 02/05/2024
 Version 1.07 --> 03/05/2024
     - Se agrego paginas para visualizar todos los tipos de sensores.
     - En cada pagina de sensor ya se asocio la resepcion de datos por mqtt.
+    - Se agrego link a paginas contactores
  
     
         

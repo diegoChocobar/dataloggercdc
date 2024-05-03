@@ -44,9 +44,27 @@ $(document).ready(function() {
 
     });
 
-    $('#linkIndicadores').click(function(){
+    $('#linkContactorLuz').click(function(){
 
-       window.location = "https://dataloggercdc.com/indicadores.php";
+       window.location = "https://dataloggercdc.com/contactorluz.php";
+       return false;
+
+    });
+    $('#linkContactorPotencia').click(function(){
+
+       window.location = "https://dataloggercdc.com/contactorpotencia.php";
+       return false;
+
+    });
+    $('#linkContactorBomba').click(function(){
+
+       window.location = "https://dataloggercdc.com/contactorbomba.php";
+       return false;
+
+    });
+    $('#linkContactorValvula').click(function(){
+
+       window.location = "https://dataloggercdc.com/contactorvalvula.php";
        return false;
 
     });

@@ -64,12 +64,32 @@
               </li>
 
               <li>
-                <a id="linkIndicadores" href="Indicacores.php">
+                <a>
                   <span class="nav-icon">
                     <i class="fa fa-navicon"></i>
                   </span>
-                  <span class="nav-text">Indicadores</span>
+                  <span class="nav-text">Contactor</span>
                 </a>
+                <ul class="nav-sub">
+                  <li>
+                    <a id="linkContactorLuz" href="contactorluz.php" onclick>
+                      <span class="nav-icon"><i class="fa fa-bar-chart-o"></i></span>
+                      <span class="nav-text">Contactor Luz</span>
+                    </a>
+                    <a id="linkContactorPotencia" href="contactorpotencia.php" onclick>
+                      <span class="nav-icon"><i class="fa fa-bar-chart-o"></i></span>
+                      <span class="nav-text">Contactor Potencia</span>
+                    </a>
+                    <a id="linkContactorBomba" href="contactorbomba.php" onclick>
+                      <span class="nav-icon"><i class="fa fa-bar-chart-o"></i></span>
+                      <span class="nav-text">Contactor Bomba</span>
+                    </a>
+                    <a id="linkContactorValvula" href="contactorvalvula.php" onclick>
+                      <span class="nav-icon"><i class="fa fa-bar-chart-o"></i></span>
+                      <span class="nav-text">Contactor Valvula</span>
+                    </a>
+                  </li>
+                </ul>
               </li>
 
               <li>
