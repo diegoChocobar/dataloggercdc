@@ -31,18 +31,42 @@
               </li>
 
               <li>
-                <a id="linkSensors" href="sensors.php">
+                <a>
                   <span class="nav-icon">
-                    <i class="fa fa-building-o"></i>
+                    <i class="fa fa-navicon"></i>
                   </span>
-                  <span class="nav-text">Sensors</span>
+                  <span class="nav-text">Sensores</span>
                 </a>
+                <ul class="nav-sub">
+                  <li>
+                    <a id="linkSensorsTemp" href="sensorstemperatura.php" onclick>
+                      <span class="nav-icon"><i class="fa fa-bar-chart-o"></i></span>
+                      <span class="nav-text">Sensores Temperatura</span>
+                    </a>
+                    <a id="linkSensorsPresion" href="sensorspresion.php" onclick>
+                      <span class="nav-icon"><i class="fa fa-bar-chart-o"></i></span>
+                      <span class="nav-text">Sensores Presion</span>
+                    </a>
+                    <a id="linkSensorsCaudal" href="sensorscaudal.php" onclick>
+                      <span class="nav-icon"><i class="fa fa-bar-chart-o"></i></span>
+                      <span class="nav-text">Sensores Caudal</span>
+                    </a>
+                    <a id="linkSensorsHumedad" href="sensorshumedad.php" onclick>
+                      <span class="nav-icon"><i class="fa fa-bar-chart-o"></i></span>
+                      <span class="nav-text">Sensores Humedad</span>
+                    </a>
+                    <a id="linkSensorsGas" href="sensorsgas.php" onclick>
+                      <span class="nav-icon"><i class="fa fa-bar-chart-o"></i></span>
+                      <span class="nav-text">Sensores Gas</span>
+                    </a>
+                  </li>
+                </ul>
               </li>
 
               <li>
                 <a id="linkIndicadores" href="Indicacores.php">
                   <span class="nav-icon">
-                    <i class="fa fa-building-o"></i>
+                    <i class="fa fa-navicon"></i>
                   </span>
                   <span class="nav-text">Indicadores</span>
                 </a>

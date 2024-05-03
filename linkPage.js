@@ -13,6 +13,36 @@ $(document).ready(function() {
        return false;
 
     });
+    $('#linkSensorsTemp').click(function(){
+
+      window.location = "https://dataloggercdc.com/sensorstemperatura.php";
+      return false;
+
+    });
+    $('#linkSensorsPresion').click(function(){
+
+      window.location = "https://dataloggercdc.com/sensorspresion.php";
+      return false;
+
+    });
+    $('#linkSensorsCaudal').click(function(){
+
+      window.location = "https://dataloggercdc.com/sensorscaudal.php";
+      return false;
+
+    });
+    $('#linkSensorsHumedad').click(function(){
+
+      window.location = "https://dataloggercdc.com/sensorshumedad.php";
+      return false;
+
+    });
+    $('#linkSensorsGas').click(function(){
+
+  window.location = "https://dataloggercdc.com/sensorsgas.php";
+  return false;
+
+    });
 
     $('#linkIndicadores').click(function(){
 

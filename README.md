@@ -38,6 +38,9 @@ Version 1.06 --> 02/05/2024
     - Mejoramos la logica de al registrar usuario, se agrego el error cuando se produciá al agregar un usuario que contenga un "espacio" en su nombre.
     - Se agrego el redireccionamiento una vez cargado con exito el registro de usuario
 
+Version 1.07 --> 03/05/2024
+    - Se agrego paginas para visualizar todos los tipos de sensores.
+    - En cada pagina de sensor ya se asocio la resepcion de datos por mqtt.
  
     
         
