@@ -43,5 +43,7 @@ Version 1.07 --> 03/05/2024
     - En cada pagina de sensor ya se asocio la resepcion de datos por mqtt.
     - Se agrego link a paginas contactores
  
+Version 1.08 --> 06/05/2024
+    - En contactorluz.php se agrego los interruptores que contrololarán las luces.
     
         

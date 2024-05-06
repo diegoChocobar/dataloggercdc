@@ -48,127 +48,34 @@ if(!$logged){
         <!-- SECCION CENTRAL -->
         <div class="padding">
 
-          <!-- SWItCHES PULSADORES && INDICADORES LED-->
-          <div class="row">
-            <!-- SWItCH1 -->
-            <div class="col-xs-2 col-sm-4">
-                <div class="box p-a">
+          <!-- INDICADORES LUZ EN TIEMPO REAL -->
+              <div class="row">
+                <?php
+                  $result = $conn->query("SELECT * FROM `devices` WHERE `id_user`='".$user_id."' AND `status`='1' order by `mqtt` ");
+                  $devices = $result->fetch_all(MYSQLI_ASSOC);
+                  $devices_num = count($devices);
+                ?>
+                  <?php for($i=0;$i<$devices_num;$i++){ ?>
+                    <?php if($devices[$i]['tipo'] == "Contactor Luz" ){ ?>
+                            <div class="col-xs-12 col-sm-4">
+                              <div class="box p-a">
+                                <div class="pull-left m-r">
+                                  <span class="w-48 rounded black" value ="black" id ="Luz_<?php echo $devices[$i]['id_devices'] ?>" name ="Luz_<?php echo $devices[$i]['id_devices'] ?>" title="<?php echo $devices[$i]['lugar']."->".$devices[$i]['ubicacion'] ?>" onclick="InterruptorLuz(<?php echo $devices[$i]['id_devices'] ?>);">
+                                    <i class="fa fa-home"></i>
+                                  </span>
+                                </div>
+                                <div class="clear">
+                                  <h4 class="m-0 text-lg _300"><b id="Luz_<?php echo $devices[$i]['nombre'] ?>">--</b><span class="text-sm"></span></h4>
+                                  <small class="text-muted">Luz <?php echo $devices[$i]['nombre'] ?></small>
+                                </div>
+                              </div>
+                            </div>
+                    <?php } ?>
 
-                  <div class="row justify-content-center">
-                        &nbsp
-                      <h3 class="form-label label-lg black pos-rlt m-r-xs" align="center"><b class="arrow bottom b-black pull in"></b>Lampara uv</span>
-                        &nbsp
-                  </div>
-
-                  <br/>
-
-                  <div class="row justify-content-center">
-
-                      <div class="form-group">
-                        <label class="ui-switch ui-switch-lg green m-t-xs">
-                          <input id="input_pulsador1" onchange="proceso_pulsador(1)"  type="checkbox">
-                          <i></i>
-                        </label>
-                      </div>
-                      &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-
-                      <div class="form-group">
-                        <button class="btn btn-lg black" align="center" id="led1" name="led1">
-                          <?php
-                            /*
-                            $result = $conn->query("SELECT * FROM `Led` WHERE `Led_id` = '1' ");
-                            $led1 = $result->fetch_all(MYSQLI_ASSOC);
-                            $count = count($led1);
-                            if($count == 1){
-                              if($led1[0]['Led_status'] == "OFF"){ ?>
-                                  <button class="btn btn-icon btn-social rounded btn-social-colored black" align="center" id="led1" name="led1">
-                                    <i class="material-icons md-24"></i><i class="material-icons md-24"></i>
-                              <?php }else{ ?>
-                                          <button class="btn btn-icon btn-social rounded btn-social-colored green" align="center" id="led1" name="led1">
-                                          <i class="material-icons md-24"></i><i class="material-icons md-24"></i>
-                              <?php }
-                            }
-                            */
-                            ?>
-                        </buton>
-                      </div>
-
-                  </div>
-
-                </div>
-
-            </div>
-
-            <!-- SWItCH2 -->
-            <div class="col-xs-12 col-sm-4">
-                <div class="box p-a">
-
-                  <div class="row justify-content-center">
-                        &nbsp
-                      <h3 class="form-label label-lg black pos-rlt m-r-xs" align ="center"><b class="arrow bottom b-black pull in"></b>Oficina</span>
-                        &nbsp
-                  </div>
-
-                  <br/>
-
-                  <div class="row justify-content-center">
-
-                    <div class="form-group">
-                      <label class="ui-switch ui-switch-lg info m-t-xs">
-                        <input id="input_pulsador2" onchange="proceso_pulsador(2)" type="checkbox">
-                        <i></i>
-                      </label>
-                    </div>
-
-                    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-
-                    <div class="form-group">
-                      <button class="btn btn-icon btn-social rounded btn-social-colored black" align="center" id="led2" name="led2">
-                      <i class="material-icons md-24"></i><i class="material-icons md-24"></i>
-                      </buton>
-                    </div>
-
-                  </div>
-
-                </div>
-              </div>
-
-            <!-- SWItCH3 -->
-            <div class="col-xs-12 col-sm-4">
-              <div class="box p-a">
-
-                <div class="row justify-content-center">
-                      &nbsp
-                    <h3 class="form-label label-lg black pos-rlt m-r-xs" align ="center"><b class="arrow bottom b-black pull in"></b>Gimnasio</span>
-                      &nbsp
-                </div>
-
-                <br/>
-
-                <div class="row justify-content-center">
-
-                  <div class="form-group">
-                    <label class="ui-switch ui-switch-lg info m-t-xs">
-                      <input id="input_pulsador3" onchange="proceso_pulsador(3)" type="checkbox">
-                      <i></i>
-                    </label>
-                  </div>
-
-                  &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-
-                  <div class="form-group">
-                    <button class="btn btn-icon btn-social rounded btn-social-colored black" align="center" id="led3" name="led3">
-                    <i class="material-icons md-24"></i><i class="material-icons md-24"></i>
-                    </buton>
-                  </div>
-
-                </div>
+                <?php } ?>
 
               </div>
-            </div>
 
-
-          </div>
 
         </div>
 
@@ -423,6 +330,27 @@ if(!$logged){
 
      //*******************************************************************************
 
+     /*
+     *******************************************************************************
+     *******************    INTERRUPTOR LUZ     *************************************
+     *******************************************************************************
+     */
+    function InterruptorLuz(x){
+      alert("Interruptor Luz: "+x);
+      var input_valor = "#Luz_" + x;
+      let Luz = document.getElementById("#Luz_" + x);
+
+
+
+        if(input_valor.value === "black"){
+          console.log("La Luz " + x + " esta encendida. La debemos apagar");
+          console.log("Class:" + input_valor.value);
+        }else{
+          console.log("La Luz " + x + " esta apagada. La debemos prender");
+          console.log("Value:" + input_valor.value);
+        }
+    }
+     //*******************************************************************************
 
 
 
