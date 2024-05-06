@@ -77,5 +77,37 @@ if( isset($_POST['AgregarDispositivo']) ) {
 
 }
 
+if( isset($_POST['BuscarDispositivo']) ) {
+
+  $data = array();
+  $user_id= strip_tags($_POST['user_id']);
+  $tipo = strip_tags($_POST['tipo']);
+
+  //$data['status'] = true;
+  //$data['error'] = "entramos en un error";
+  //$data['data'] = "user:". $user_id . " tipo: ".$tipo;
+
+  $result = $conn->query("SELECT * FROM `devices` WHERE `id_user` = '".$user_id."' AND  `tipo` = '".$tipo."' ");
+  $devices = $result->fetch_all(MYSQLI_ASSOC);
+  $count = count($devices);//cuento cuantos elementos tiene $devices,
+
+  if ($count > 0){
+    $data['status'] = true;
+    $data['data'] = $count;
+
+    for ($i = 0; $i < $count; $i++) {
+      $data['datos'][$i]['id_devices'] = $devices[$i]['id_devices'];
+      $data['datos'][$i]['nombre'] = $devices[$i]['nombre'];
+      $data['datos'][$i]['serie'] = $devices[$i]['serie'];
+      $data['datos'][$i]['mqtt'] = $devices[$i]['mqtt'];
+    }
+
+  }else{
+    $data['status'] = false;
+    $data['error'] = "no se encontron dispositivos";
+  }
+
+  echo json_encode($data, JSON_FORCE_OBJECT);
+}
 
  ?>

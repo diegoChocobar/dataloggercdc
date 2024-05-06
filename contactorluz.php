@@ -54,13 +54,15 @@ if(!$logged){
                   $result = $conn->query("SELECT * FROM `devices` WHERE `id_user`='".$user_id."' AND `status`='1' order by `mqtt` ");
                   $devices = $result->fetch_all(MYSQLI_ASSOC);
                   $devices_num = count($devices);
+                  $coma = ",";
+                  $comilla = "'";
                 ?>
                   <?php for($i=0;$i<$devices_num;$i++){ ?>
                     <?php if($devices[$i]['tipo'] == "Contactor Luz" ){ ?>
                             <div class="col-xs-12 col-sm-4">
                               <div class="box p-a">
                                 <div class="pull-left m-r">
-                                  <span class="w-48 rounded black" value ="black" id ="Luz_<?php echo $devices[$i]['id_devices'] ?>" name ="Luz_<?php echo $devices[$i]['id_devices'] ?>" title="<?php echo $devices[$i]['lugar']."->".$devices[$i]['ubicacion'] ?>" onclick="InterruptorLuz(<?php echo $devices[$i]['id_devices'] ?>);">
+                                  <span class="w-48 rounded black" value ="black" id ="Luz_<?php echo $devices[$i]['id_devices'] ?>" name ="Luz_<?php echo $devices[$i]['id_devices'] ?>" title="<?php echo $devices[$i]['lugar']."->".$devices[$i]['ubicacion'] ?>" onclick="InterruptorLuz(<?php echo $devices[$i]['id_devices'] . $coma . $comilla . $devices[$i]['mqtt'] . $comilla ?>);">
                                     <i class="fa fa-home"></i>
                                   </span>
                                 </div>
@@ -140,6 +142,71 @@ if(!$logged){
 
 
   <script type="text/javascript">
+    window.topics_mqtt = [];//topic permitidos en esta pagina
+    window.id_devices = []; //dispositivos permitidos en esta pagina
+
+    window.onload=function() {
+      $user_id = '<?php echo $user_id; ?>';
+      $tipo = "Contactor Luz";
+			//alert('Inicio de Pagina Web: ' + $user_id);
+      
+      /////////// Buscamos Todos los dispositivos asociados //////////////////
+      ///*
+      var formData = new FormData();
+      formData.append("BuscarDispositivo", "ON");
+      formData.append("user_id", $user_id);
+      formData.append("tipo", $tipo);
+
+      var objX = new XMLHttpRequest();
+
+      objX.onreadystatechange = function() {
+        if(objX.readyState === 4) {
+        if(objX.status === 200) {
+          //alert(objX.responseText);
+          var data = JSON.parse(objX.responseText); //Parsea el Json al objeto anterior.
+          //data = objX.responseText;
+          if(data.status==true){
+              //alert(data.data);
+              //console.log(data.datos);
+              ///*
+              datos = Object.values(data.datos);
+              //console.log(datos);
+              cantidad_datos = datos.length;
+              //console.log("cantidad de datos:" +  cantidad_datos);
+
+              for (var i=0; i<cantidad_datos; i++){
+                  //console.log("dato["+i+"][nombre device]:"+datos[i].nombre);
+                  //console.log("dato["+i+"][serie device]:"+datos[i].serie);
+                  //console.log("dato["+i+"][id_device]:"+datos[i].id_devices);
+                  //console.log("dato["+i+"][mqtt]:"+datos[i].mqtt);
+                  window.id_devices[i] = datos[i].id_devices;//estos son los topics admitidos por este usuario
+                  window.topics_mqtt[i] = datos[i].mqtt;//estos son los topics admitidos por este usuario
+                  
+              }
+              //*/
+              
+          }else{
+             alert(data.error);
+            //document.getElementById("ot_vpe").focus();
+            //window.location.reload(true);
+
+          }
+
+
+        } else {
+          alert('Error Code 111: ' +  objX.status);
+          alert('Error Message 222: ' + objX.statusText);
+        }
+        }
+      }
+      objX.open('POST', 'consultas.php',true);
+      objX.send(formData);
+      //*/
+      ////////////////////////////////////////////////////////////////////////
+      conction_mqtt();
+
+		}
+
 
 
 
@@ -151,208 +218,140 @@ if(!$logged){
       <?php $_SESSION['conection_status_emqx']="ON"; ?>
     }
 
+    function InterruptorLuz(x,topic){
+      alert("Interruptor Luz: "+x+" topic: "+topic);
+      let Luz = document.getElementById("Luz_" + x);
 
-    /*
-    *******************************************************************************
-    *******************    CONEXION SETUP     *************************************
-    *******************************************************************************
-    */
-    //Esta parte esta funcionado para conexion por mqtt (demora mucho)
-    var options = {
-      connectTimeout: 2000,
-      // Authentication
-      clientId: '<?php echo "web_" . $user_name . rand(1,999) ; ?>',
-      username: '<?php echo $user_name; ?>',
-      password: '<?php echo $user_password; ?>',
 
-      keepalive: 60, //tiempo de mensaje interno hacia el brouker para avisar que estamos conectados
-      clean: true,   //iniciamos en una session limpia (es una session no percistente)
+
+        if(Luz.classList.contains('w-48') && Luz.classList.contains('black')){
+          console.log("La Luz " + x + " esta apagada. La debemos prender");
+          Luz.classList.remove('black');
+          Luz.classList.add('green');
+          client.publish(topic, 'Prender', (error) => {
+              console.log(error || 'Mensaje enviado!!!>', topic, 'Prender')
+            })
+        }else{
+          console.log("La Luz " + x + " esta encendida. La debemos apagar");
+          Luz.classList.remove('green');
+          Luz.classList.add('black');
+          client.publish(topic, 'Apagar', (error) => {
+              console.log(error || 'Mensaje enviado!!!>', topic, 'Apagar')
+            })
+        }
     }
 
+    function conction_mqtt(){
+       /*
+      *******************************************************************************
+      ********************* CONEXION SETUP MQTT *************************************
+      *******************************************************************************
+      */
+      //Esta parte esta funcionado para conexion por mqtt (demora mucho)
+      var options = {
+        connectTimeout: 2000,
+        // Authentication
+        clientId: '<?php echo "web_" . $user_name . rand(1,999) ; ?>',
+        username: '<?php echo $user_name; ?>',
+        password: '<?php echo $user_password; ?>',
 
-    // WebSocket connect url
-    var WebSocket_URL = 'wss://dataloggercdc.com:8094/mqtt'
-
-    //var client = mqtt.connect(WebSocket_URL, options)
-    var client = mqtt.connect(WebSocket_URL, options)
+        keepalive: 60, //tiempo de mensaje interno hacia el brouker para avisar que estamos conectados
+        clean: true,   //iniciamos en una session limpia (es una session no percistente)
+      }
 
 
+      // WebSocket connect url
+      var WebSocket_URL = 'wss://dataloggercdc.com:8094/mqtt'
 
-    client.on('connect', () => {//original
+      client = mqtt.connect(WebSocket_URL, options)
 
-      console.log('Conexion exito con brouker')
-      <?php $_SESSION['conection_status_emqx'] = "ON"; ?>
-      console.log('<?php echo $_SESSION['conection_status_emqx']; ?>')
-      top_topic = '<?php echo $user_name; ?>'+'/#';
 
-      client.subscribe(top_topic, { qos: 0 }, (error) => {
-        if (!error) {
-          console.log('Suscripción exitosa topics ->'+top_topic);
-          alert ('Suscripción exitosa topics ->'+top_topic);
-        }else{
-          console.log('Suscripción fallida!')
-          alert ('Suscripción fallida topics ->'+top_topic);
-        }
+
+      client.on('connect', () => {
+
+        console.log('Conexion exito con brouker')
+        <?php $_SESSION['conection_status_emqx'] = "ON"; ?>
+        console.log('<?php echo $_SESSION['conection_status_emqx']; ?>')
+        top_topic = '<?php echo $user_name; ?>'+'/#';
+
+        client.subscribe(top_topic, { qos: 0 }, (error) => {
+          if (!error) {
+            console.log('Suscripción exitosa topics ->'+top_topic);
+            alert ('Suscripción exitosa topics ->'+top_topic);
+          }else{
+            console.log('Suscripción fallida!')
+            alert ('Suscripción fallida topics ->'+top_topic);
+          }
+        })
+
+
       })
-      //Subscripcion a topicos
+
+      
+      mensajes_recibidos_mqtt(client);
+
       /*
-      client.subscribe('/casa/temperatura/#', { qos: 0 }, (error) => {
-        if (!error) {
-          console.log('Suscripción exitosa topics -> /casa/temperatura/#')
-          //alert ("Suscripción exitosa topics -> /casa/temperatura/#");
-        }else{
-          console.log('Suscripción fallida!')
-          alert ("Suscripción fallida topics -> /casa/temperatura/#");
-        }
-      })
-      //Subscripcion a topicos
-      client.subscribe('/casa/tension/#', { qos: 0 }, (error) => {
-        if (!error) {
-          console.log('Suscripción exitosa topics -> /casa/tension/#')
-          //alert ('Suscripción exitosa topics');
-        }else{
-          console.log('Suscripción fallida!')
-          alert ('Suscripción fallida topics -> /casa/tension/#');
-        }
-      })
-
-      client.subscribe('/casa/led/#', { qos: 0 }, (error) => {
-        if (!error) {
-          console.log('Suscripción exitosa topics -> /casa/led/#')
-          alert ('Suscripción exitosa topics');
-        }else{
-          console.log('Suscripción fallida!')
-          alert ('Suscripción fallida topics -> /casa/led/#');
-        }
+      client.on('reconnect', (error) => {
+        console.log('Reconectando....:', error)
+        <?php $_SESSION['conection_status_emqx'] = "OFF"; ?>
+        console.log('<?php echo $_SESSION['conection_status_emqx']; ?>')
       })
       */
+      client.on('error', (error) => {
+        console.log('Connect Error:', error)
+        conection_status = "OFF"
+      })
+      //*****************************************************************************
 
-
-    })
-
-    client.on('message', (topic, message) => {
-
-      let arr_topic = topic.split('/');
-      var tamaño_topic = arr_topic.length;
-      var top_topic = arr_topic[tamaño_topic-5];
-      var seccion_topic = arr_topic[tamaño_topic-4];
-      var subseccion_topic = arr_topic[tamaño_topic-3];
-      var tipo_topic = arr_topic[tamaño_topic-2];
-      var alias_topic = arr_topic[tamaño_topic-1];
-      var valor_topic = message.toString();
-
-      console.log('Mensaje recibido bajo tópic: ', topic, ' -> ', message.toString())
-      console.log('tamaño topic: ', tamaño_topic,'\ntop: ', top_topic,'\nseccion: ', seccion_topic,'\nSub seccion: ', subseccion_topic,'\ntipo: ', tipo_topic,'\nalias: ', alias_topic,'\nvalor_topic: ', valor_topic)
-
-      if(topic == "Diego Chocobar/casa/led/1"){
-        value_led_mqtt = message.toString();
-        console.log("Led 1: " + value_led_mqtt);
-        if(value_led_mqtt == "ON"){
-          $("#led1").removeClass("black");
-          $("#led1").addClass("green");
-        }else{
-          if(value_led_mqtt == "OFF"){
-            $("#led1").removeClass("green");
-            $("#led1").addClass("black");
-          }
-        }
-      }
-
-      if(topic == "Diego Chocobar/casa/led/2"){
-        value_led_mqtt = message.toString();
-        console.log("Led 2: " + value_led_mqtt);
-        if(value_led_mqtt == "ON"){
-          $("#led2").removeClass("black");
-          $("#led2").addClass("green");
-        }else{
-          if(value_led_mqtt == "OFF"){
-            $("#led2").removeClass("green");
-            $("#led2").addClass("black");
-          }
-        }
-      }
-
-      if(topic == "Diego Chocobar/casa/led/3"){
-        value_led_mqtt = message.toString();
-        console.log("Led 3: " + value_led_mqtt);
-        if(value_led_mqtt == "ON"){
-          $("#led3").removeClass("black");
-          $("#led3").addClass("green");
-        }else{
-          if(value_led_mqtt == "OFF"){
-            $("#led3").removeClass("green");
-            $("#led3").addClass("black");
-          }
-        }
-      }
-
-
-    })
-    /*
-    client.on('reconnect', (error) => {
-      console.log('Reconectando....:', error)
-      <?php $_SESSION['conection_status_emqx'] = "OFF"; ?>
-      console.log('<?php echo $_SESSION['conection_status_emqx']; ?>')
-    })
-    */
-    client.on('error', (error) => {
-      console.log('Connect Error:', error)
-      conection_status = "OFF"
-    })
-    //*******************************************************************************
-
-
-
-     /*
-     *******************************************************************************
-     *******************    PROCESOS     *************************************
-     *******************************************************************************
-     */
-
-     function proceso_pulsador(x){
-       var input_valor = "#input_pulsador" + x;
-       var topic_publish = "Diego Chocobar/casa/Dormitorio/interruptor/" + x;
-
-
-         if($(input_valor).is(":checked")){
-            //console.log("Encendido: Led " + x);
-            client.publish(topic_publish, 'ON', (error) => {
-              console.log(error || 'Mensaje enviado!!!>', topic_publish, 'ON')
-            })
-         }else{
-           //console.log("Apagado: Led" + x);
-
-           client.publish(topic_publish, 'OFF', (error) => {
-             console.log(error || 'Mensaje enviado!!!>', topic_publish, 'OFF')
-           })
-         }
-     }
-
-     //*******************************************************************************
-
-     /*
-     *******************************************************************************
-     *******************    INTERRUPTOR LUZ     *************************************
-     *******************************************************************************
-     */
-    function InterruptorLuz(x){
-      alert("Interruptor Luz: "+x);
-      var input_valor = "#Luz_" + x;
-      let Luz = document.getElementById("#Luz_" + x);
-
-
-
-        if(input_valor.value === "black"){
-          console.log("La Luz " + x + " esta encendida. La debemos apagar");
-          console.log("Class:" + input_valor.value);
-        }else{
-          console.log("La Luz " + x + " esta apagada. La debemos prender");
-          console.log("Value:" + input_valor.value);
-        }
     }
-     //*******************************************************************************
 
+    function mensajes_recibidos_mqtt(client){
 
+      //////////////// mensajes recibidos por mqtt //////////////////////////////////
+      client.on('message', (topic, message) => {
+
+        let arr_topic = topic.split('/');
+        var tamaño_topic = arr_topic.length;
+        var top_topic = arr_topic[tamaño_topic-5];
+        var seccion_topic = arr_topic[tamaño_topic-4];
+        var subseccion_topic = arr_topic[tamaño_topic-3];
+        var tipo_topic = arr_topic[tamaño_topic-2];
+        var alias_topic = arr_topic[tamaño_topic-1];
+        var valor_topic = message.toString();
+
+        topics_mqtt = window.topics_mqtt;
+        id_device = window.id_devices;
+
+        
+
+        console.log('Mensaje recibido bajo tópic: ', topic, ' -> ', message.toString())
+        console.log('tamaño topic: ', tamaño_topic,'\ntop: ', top_topic,'\nseccion: ', seccion_topic,'\nSub seccion: ', subseccion_topic,'\ntipo: ', tipo_topic,'\nalias: ', alias_topic,'\nvalor_topic: ', valor_topic)
+
+        cantidad_mqtt = topics_mqtt.length;
+        //console.log("Topic_Mqtt permitidos:", topics_mqtt);
+
+        for(var i=0; i< cantidad_mqtt; i++){
+          if(topic == topics_mqtt[i]){
+            let Luz = document.getElementById("Luz_" + id_device[i]);
+            value_led_mqtt = message.toString();
+            console.log("Luz[" + alias_topic + "]["+id_device[i]+"]: " + value_led_mqtt);
+              
+              if(value_led_mqtt == "ON"){
+                  Luz.classList.remove('black');
+                  Luz.classList.add('green');
+              }else{
+                if(value_led_mqtt == "OFF"){
+                  Luz.classList.remove('green');
+                  Luz.classList.add('black');
+                }
+              }
+
+          }
+        }
+
+      })
+      //////////////////////////////////////////////////////////////////////////////////////////////
+    }
 
   </script>
 

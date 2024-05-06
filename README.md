@@ -45,5 +45,5 @@ Version 1.07 --> 03/05/2024
  
 Version 1.08 --> 06/05/2024
     - En contactorluz.php se agrego los interruptores que contrololarán las luces.
-    
+    - Se agrego logica que recibe los datos del dispositivo y actualiza su valor en la web
         
