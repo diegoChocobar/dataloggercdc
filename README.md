@@ -46,4 +46,10 @@ Version 1.07 --> 03/05/2024
 Version 1.08 --> 06/05/2024
     - En contactorluz.php se agrego los interruptores que contrololarán las luces.
     - Se agrego logica que recibe los datos del dispositivo y actualiza su valor en la web
-        
+ 
+Version 1.09 --> 08/05/2024
+    - Iniciamos Nodejs
+    - nos conectamos a BASE DE DATOS por nodejs.
+    - nos conectamos a MQTT por nodejs.
+    - Recibimos los primeros menjasjes por mqtt
+                

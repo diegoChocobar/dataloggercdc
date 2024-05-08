@@ -1,11 +1,15 @@
 {
-  "name": "prueba",
+  "name": "hola_mundo",
   "version": "1.0.0",
-  "description": "node prueba",
+  "description": "saldudo hola mundo",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Diego Chocobar",
+  "keywords": [
+    "hola",
+    "mundo"
+  ],
+  "author": "cdc electronics",
   "license": "ISC"
 }

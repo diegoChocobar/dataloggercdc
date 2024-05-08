@@ -1,43 +1,52 @@
-console.log("Programa para la conexion a MySQL y MQTT");
+console.log("Programa para la conexion a MySQL y MQTT \n");
 
 var mysql = require('mysql');
 var mqtt = require('mqtt');
 
-
-//////Conexion a base de datos///////////
+///*//////////////////////////////////////////////////////////////////////////////
+////////////////Conexion a base de datos//////////////////////////////////////////
 var conn = mysql.createConnection({
-  host:"cdcelectronics.online",
-  user:"admin_cdc",
+  host:"localhost",
+  user:"admin_dataloggercdc",
   password:"ChDi1088",
-  database:"admin_dbcurso"
+  database:"admin_dataloggercdc"
 
 });
+//*/
 
+///*
 conn.connect(function(err){
   if(err) throw err;
-
   console.log("Conexiona base de datos exitosa");
-  ///////////consulta a table de base de datos ////////////////
-  //var query = "SELECT * FROM users WHERE 1";
-  //conn.query(query, function(err, result, fields) {
-  //  if(err) throw err;
-  //  if(result.length>0){
-  //    console.log(result);
-  //  }
-  //});
- //////////////////////////////////////////////////////////////
-
-
 });
+//*/
+
+///*
+//para mantener la sesion con mysql abierta, esto se ejecuta cada 5000ms
+setInterval(function(){
+  var query = 'SELECT 1 + 1 as result';
+
+  conn.query(query, function(err, result, fields){
+    if(err) throw err;
+
+    //console.log("resultado de la consulta:");
+    //console.log(result);
+  });
+
+},5000);
+//*/
+/////////////////////////////////////////////////////////////////////////////////////
 
 
-///Credenciales mqtt
+//*
+//////////////////////////// CONECTION MQTT /////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
 var options = {
   port: 1883,
-  host:'cdcelectronics.online',
-  clientId: 'acces_control_server_' + Math.round(),
-  username: 'web_server',
-  password: 'ChDi1088',
+  host:'dataloggercdc.com',
+  clientId: 'server_' + Math.round(Math.random() * (0- 10000) * -1) ,
+  username: 'server',
+  password: '731cd5b647196b6a3647155fae7b3cf58a0a8beede121f6c8ac769a363143301',
   keepalive: 60,
   reconnectPeriod: 5000,
   protocolId: 'MQIsdp',
@@ -46,89 +55,41 @@ var options = {
   encoding: 'utf8'
 };
 
-var client = mqtt.connect("mqtt://cdcelectronics.online", options);
+var client = mqtt.connect("mqtt://dataloggercdc.com", options);
 
 client.on('connect',function(){
   console.log("Conexion MQTT exitosa");
-  client.subscribe('/casa/#',function(){
-    console.log("Subscripcion exitosa");
+  client.subscribe('/server/#',function(){
+    console.log("Subscripcion exitosa /server/#\n");
   });
 });
 
 client.on('message', function(topic, message){
   console.log("Mensaje Recibido:")
-  console.log("topic-> " + topic + " Mensaje: " + message.toString() );
+  console.log("topic-> " + topic + " Mensaje: " + message.toString() + "\n");
   //client.publish("topic", mymessage.toString());
 
 
   if(topic == "/casa/led/1"){
     value_led_mqtt = message.toString();
-    if(value_led_mqtt == "ON"){
-      ///actualizamos el valor del led en la base de datos////////////
-      var query = "UPDATE `Led` SET `Led_status`='ON' WHERE `Led`.`Led_id` = 1";
-      conn.query(query, function(err, result, fields) {
-        if(err) throw err;
-      });
-     //////////////////////////////////////////////////////////////
-    }else{
-      if(value_led_mqtt == "OFF"){
-        //actualizamos el valor del led en la base de datos
-        var query = "UPDATE `Led` SET `Led_status`='OFF' WHERE `Led`.`Led_id` = 1";
-        conn.query(query, function(err, result, fields) {
-          if(err) throw err;
-        });
-      }
+    if(value_led_mqtt == "prender"){
+        
     }
+    if(value_led_mqtt == "OFF"){
+      
+    }
+    
   }
 
-  if(topic == "/casa/led/2"){
-    value_led_mqtt = message.toString();
-    if(value_led_mqtt == "ON"){
-      ///actualizamos el valor del led en la base de datos////////////
-      var query = "UPDATE `Led` SET `Led_status`='ON' WHERE `Led`.`Led_id` = 2";
-      conn.query(query, function(err, result, fields) {
-        if(err) throw err;
-      });
-     //////////////////////////////////////////////////////////////
-    }else{
-      if(value_led_mqtt == "OFF"){
-        //actualizamos el valor del led en la base de datos
-        var query = "UPDATE `Led` SET `Led_status`='OFF' WHERE `Led`.`Led_id` = 2";
-        conn.query(query, function(err, result, fields) {
-          if(err) throw err;
-        });
-      }
-    }
-  }
-
-  if(topic == "/casa/led/3"){
-    value_led_mqtt = message.toString();
-    if(value_led_mqtt == "ON"){
-      ///actualizamos el valor del led en la base de datos////////////
-      var query = "UPDATE `Led` SET `Led_status`='ON' WHERE `Led`.`Led_id` = 3";
-      conn.query(query, function(err, result, fields) {
-        if(err) throw err;
-      });
-     //////////////////////////////////////////////////////////////
-    }else{
-      if(value_led_mqtt == "OFF"){
-        //actualizamos el valor del led en la base de datos
-        var query = "UPDATE `Led` SET `Led_status`='OFF' WHERE `Led`.`Led_id` = 3";
-        conn.query(query, function(err, result, fields) {
-          if(err) throw err;
-        });
-      }
-    }
-  }
 
 
 
 
   ///esto sirve para ver si nuestro servidor esta corriendo
-  if(topic == "/casa/status"){
+  if(topic == "/server/status"){
     value_led_mqtt = message.toString();
-    if(value_led_mqtt == "status?"){
-      client.publish('/casa/status', 'STATUS ON -> API SERVER JS')
+    if(value_led_mqtt == "?"){
+      client.publish('/server/status', 'STATUS ON -> API SERVER JS')
     }
   }
 
@@ -141,25 +102,4 @@ client.on('reconnect', (error) => {
 client.on('error', (error) => {
     console.log('Connection failed:', error)
 })
-
-
-
-
-
-
-
-
-//para mantener la sesion con mysql abierta
-//esto se ejecuta cada 5000ms
-setInterval(function(){
-  var query = 'SELECT 1 + 1 as result';
-
-  conn.query(query, function(err, result, fields){
-    if(err) throw err;
-
-    //console.log("resultado de la consulta:");
-    //console.log(result);
-  });
-
-},5000);
-//////////////////////////////////////////////////
+//*/
