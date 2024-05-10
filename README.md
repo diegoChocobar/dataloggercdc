@@ -78,3 +78,4 @@ Version 1.10 --> 10/05/2024 Stable
         * Habilitamos la ejecucion de /node/index.js mediante Node. Este va a ser nuestro programa principal para el manejo de MQTT y recepcion de datos de los dispositivos.
         * Nos Subscribimos a los topicos de la base de datos devices_tipo donde estan agendados los equipos permitidos
         * Se configuro el servidor para que inicie de forma automatica los servicios de MQTT, NODE, PM2, fundamentales para la ejecución de index.js.
+        ** Iniciamos con el tratamiento de los datos recibidos por los equipos, estos datos se tratan en el servidor y decide si se guardan en base de datos.

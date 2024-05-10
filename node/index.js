@@ -98,12 +98,7 @@ client.on('message', function(topic, message){
   //console.log("topic-> " + topic + "\n");
 
   var topic_array = topic.split("/");
-  var topic_user = topic_array[0];
-  var topic_lugar = topic_array[1];
-  var topic_ubicacion = topic_array[2];
   var topic_tipo = topic_array[3];
-  var topic_nombre = topic_array[4];
-  var topic_longitud = topic_array.length;
   
   //*/////////debemos buscar en DB devices los topics a los cual nos debemos comparar con los topic recibidos en el mensaje//////////////////
   var query = "SELECT * FROM devices_tipo WHERE status = 1";
@@ -117,13 +112,7 @@ client.on('message', function(topic, message){
           //realizamos esta encapsulacion con function(indice), para que la variable topic_string tenga vida en el metodo asincronico client.subscribe(topic_string, function ()
           let  string_topic_tipo = dispositivos[i].clase + ' ' + dispositivos[i].definicion;
           if(topic_tipo == string_topic_tipo){
-            console.log("Mensaje Recibido Admitido:" + message.toString());
-            console.log("topic longitud-> " + topic_longitud);
-            console.log("topic user-> " + topic_user);
-            console.log("topic lugar-> " + topic_lugar);
-            console.log("topic ubicacion-> " + topic_ubicacion);
-            console.log("topic tipo-> " + topic_tipo);
-            console.log("topic nombre-> " + topic_nombre);
+            tratamiento_data(topic, message);//funcion para el tratamiento de datos
           }
       }
     }
@@ -159,3 +148,40 @@ client.on('error', (error) => {
     console.log('Connection failed:', error)
 })
 ////////////////////////////////////////////////////////////////////////////////////*/
+
+function tratamiento_data(topic,message){
+
+  var topic_array = topic.split("/");
+  var topic_user = topic_array[0];
+  var topic_lugar = topic_array[1];
+  var topic_ubicacion = topic_array[2];
+  var topic_tipo = topic_array[3];
+  var topic_nombre = topic_array[4];
+  var topic_longitud = topic_array.length;
+
+  console.log("\nMensaje Recibido Admitido:" + message.toString());
+  console.log("topic longitud-> " + topic_longitud);
+  console.log("topic user-> " + topic_user);
+  console.log("topic lugar-> " + topic_lugar);
+  console.log("topic ubicacion-> " + topic_ubicacion);
+  console.log("topic tipo-> " + topic_tipo);
+  console.log("topic nombre-> " + topic_nombre);
+
+  //console.log("Entramos a tratar los datos");
+  if(topic_tipo == "Sensor Temperatura"){
+    console.log("Guardamos los datos de temperatura en la base de datos\n");
+  }
+  if(topic_tipo == "Sensor Presion"){
+    console.log("Guardamos los datos de presion en la base de datos\n");
+  }
+  if(topic_tipo == "Sensor Caudal"){
+    console.log("Guardamos los datos de presion en la base de datos\n");
+  }
+  if(topic_tipo == "Sensor Humedad"){
+    console.log("Guardamos los datos de presion en la base de datos\n");
+  }
+  if(topic_tipo == "Sensor Gas"){
+    console.log("Guardamos los datos de presion en la base de datos\n");
+  }
+
+}
