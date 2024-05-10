@@ -169,19 +169,19 @@ function tratamiento_data(topic,message){
 
   //console.log("Entramos a tratar los datos");
   if(topic_tipo == "Sensor Temperatura"){
-    console.log("Guardamos los datos de temperatura en la base de datos\n");
+    console.log("Guardamos los datos de TEMPERATURA en la base de datos\n");
   }
   if(topic_tipo == "Sensor Presion"){
-    console.log("Guardamos los datos de presion en la base de datos\n");
+    console.log("Guardamos los datos de PRESION en la base de datos\n");
   }
   if(topic_tipo == "Sensor Caudal"){
-    console.log("Guardamos los datos de presion en la base de datos\n");
+    console.log("Guardamos los datos de CAUDAL en la base de datos\n");
   }
   if(topic_tipo == "Sensor Humedad"){
-    console.log("Guardamos los datos de presion en la base de datos\n");
+    console.log("Guardamos los datos de HUMEDAD en la base de datos\n");
   }
   if(topic_tipo == "Sensor Gas"){
-    console.log("Guardamos los datos de presion en la base de datos\n");
+    console.log("Guardamos los datos de GAS en la base de datos\n");
   }
 
 }
