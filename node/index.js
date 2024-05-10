@@ -65,8 +65,8 @@ client.on('connect',function(){
 });
 
 client.on('message', function(topic, message){
-  console.log("Mensaje Recibido:")
-  console.log("topic-> " + topic + " Mensaje: " + message.toString() + "\n");
+  console.log("Mensaje Recibido:" + message.toString())
+  console.log("topic-> " + topic + "\n");
   //client.publish("topic", mymessage.toString());
 
 

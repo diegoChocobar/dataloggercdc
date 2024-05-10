@@ -53,3 +53,27 @@ Version 1.09 --> 08/05/2024
     - nos conectamos a MQTT por nodejs.
     - Recibimos los primeros menjasjes por mqtt
                 
+ 
+Version 1.10 --> 10/05/2024 Stable
+    En esta primera version Stable tenemos habilitadas las siguientes cosas:
+    - Pagina de Login y Register totalmente funcional
+    - Pagina para administrar Dispositivos en donde podemos:
+        * Agregar un nuevo dispositivo y asociarlo al usuario en cuestion
+        * Eliminar un dispositivo   
+        * Editar un dispositivo existente
+        * Podemos visualizar todos los dispositivos que posee el usuario.
+    - En Barra Lateral derecha se agregaron todas los links a las paginas disponibles.
+    - Pagina Sesores de Temperatura en donde tenemos las siguiente funciones:
+        * Visualizamos todos los equipos de sensores de temperatura asociados al usuario
+        * Nos conectamos mediante MQTT al servidor.
+        * Recibimos los datos provenientes de los equipos de sensados y los visualizamos.
+        ** Deberiamos agregra un grafico en donde se visualicen los datos de determinado sensor.
+    - Pagina Contactor Luz
+        * Visualizamos todos los equipos de contactores de luz asociados al usuario.
+        * Nos conectamos mediante MQTT al servidor.
+        * Recibimos los datos provenientes de los equipos de contactores y los visualizamos.
+        * Enviamos los datos al equipo contactor cuando cambiamos el estado en la pagina.
+    _ En esta version trabajamos sobre el servidor, las funciones habilitadas son:
+        * Recepcion de datos mediante MQTT.
+        * Habilitamos la ejecucion de /node/index.js mediante Node. Este va a ser nuestro programa principal para el manejo de MQTT y recepcion de datos de los dispositivos.
+        * Se configuro el servidor para que inicie de forma automatica los servicios de MQTT, NODE, PM2, fundamentales para la ejecución de index.js.
