@@ -59,9 +59,39 @@ var client = mqtt.connect("mqtt://dataloggercdc.com", options);
 
 client.on('connect',function(){
   console.log("Conexion MQTT exitosa");
+  //////debemos buscar en DB devices los topics a los cual nos debemos subscribir////
+
+      //hacemos la consulta
+      var query = "SELECT * FROM devices_tipo WHERE status = 1";
+      conn.query(query, function (err, result, fields) {
+      if (err) throw err;
+
+      //encontramos dispositivos
+      if(result.length>0){
+        var dispositivos = result; // Aquí guardamos los dispositivos encontrados en la variable dispositivos
+        console.log("Cantidad de Topics de Dispositivos encontrados a subscribirme: "+dispositivos.length+" -->Topics:"); // Puedes hacer lo que quieras con la variable dispositivos, como imprimir en la consola
+        for(let i=0; i<dispositivos.length; i++){
+          //realizamos esta encapsulacion con function(indice), para que la variable topic_string tenga vida en el metodo asincronico client.subscribe(topic_string, function ()
+          (function (indice) {
+            console.log("Tipo de Equipo: ", dispositivos[indice].clase, " ", dispositivos[indice].definicion);
+            //formato de topicos: chocobar inti/Casona/Lab Masa/Sensor Temperatura/T1
+            let topic_string = '+/+/+/' + dispositivos[indice].clase + ' ' + dispositivos[indice].definicion + '/#';
+            client.subscribe(topic_string, function () {
+                console.log("Subscripcion exitosa a: " + topic_string + "\n");
+            });
+          })(i);
+
+        }
+        
+      }
+
+
+    });
+
   client.subscribe('/server/#',function(){
-    console.log("Subscripcion exitosa /server/#\n");
+    console.log("Subscripcion exitosa /server/# \n");
   });
+
 });
 
 client.on('message', function(topic, message){
@@ -81,10 +111,6 @@ client.on('message', function(topic, message){
     
   }
 
-
-
-
-
   ///esto sirve para ver si nuestro servidor esta corriendo
   if(topic == "/server/status"){
     value_led_mqtt = message.toString();
@@ -102,4 +128,4 @@ client.on('reconnect', (error) => {
 client.on('error', (error) => {
     console.log('Connection failed:', error)
 })
-//*/
+////////////////////////////////////////////////////////////////////////////////////*/
