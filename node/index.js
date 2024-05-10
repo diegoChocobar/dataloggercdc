@@ -184,4 +184,17 @@ function tratamiento_data(topic,message){
     console.log("Guardamos los datos de GAS en la base de datos\n");
   }
 
+  if(topic_tipo == "Contactor Luz"){
+    console.log("Guardamos los datos de LUZ en la base de datos\n");
+  }
+  if(topic_tipo == "Contactor Bomba"){
+    console.log("Guardamos los datos de BOMBA en la base de datos\n");
+  }
+  if(topic_tipo == "Contactor Valvula"){
+    console.log("Guardamos los datos de VALVULA en la base de datos\n");
+  }
+  if(topic_tipo == "Contactor Potencia"){
+    console.log("Guardamos los datos de POTENCIA en la base de datos\n");
+  }
+
 }
