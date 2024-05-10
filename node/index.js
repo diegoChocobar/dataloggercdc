@@ -59,14 +59,13 @@ var client = mqtt.connect("mqtt://dataloggercdc.com", options);
 
 client.on('connect',function(){
   console.log("Conexion MQTT exitosa");
-  //////debemos buscar en DB devices los topics a los cual nos debemos subscribir////
 
-      //hacemos la consulta
+      //////////debemos buscar en DB devices los topics a los cual nos debemos subscribir//////////////////
       var query = "SELECT * FROM devices_tipo WHERE status = 1";
       conn.query(query, function (err, result, fields) {
       if (err) throw err;
 
-      //encontramos dispositivos
+      //encontramos dispositivos y nos subscribimos a los topicos asociados los mismos
       if(result.length>0){
         var dispositivos = result; // Aquí guardamos los dispositivos encontrados en la variable dispositivos
         console.log("Cantidad de Topics de Dispositivos encontrados a subscribirme: "+dispositivos.length+" -->Topics:"); // Puedes hacer lo que quieras con la variable dispositivos, como imprimir en la consola
@@ -82,23 +81,54 @@ client.on('connect',function(){
           })(i);
 
         }
-        
       }
 
 
     });
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  client.subscribe('/server/#',function(){
-    console.log("Subscripcion exitosa /server/# \n");
-  });
+    client.subscribe('/server/#',function(){
+      console.log("Subscripcion exitosa /server/# \n");
+    });
 
 });
 
 client.on('message', function(topic, message){
-  console.log("Mensaje Recibido:" + message.toString())
-  console.log("topic-> " + topic + "\n");
-  //client.publish("topic", mymessage.toString());
+  
+  //console.log("topic-> " + topic + "\n");
 
+  var topic_array = topic.split("/");
+  var topic_user = topic_array[0];
+  var topic_lugar = topic_array[1];
+  var topic_ubicacion = topic_array[2];
+  var topic_tipo = topic_array[3];
+  var topic_nombre = topic_array[4];
+  var topic_longitud = topic_array.length;
+  
+  //*/////////debemos buscar en DB devices los topics a los cual nos debemos comparar con los topic recibidos en el mensaje//////////////////
+  var query = "SELECT * FROM devices_tipo WHERE status = 1";
+  conn.query(query, function (err, result, fields) {
+    if (err) throw err;
+    //encontramos dispositivos y nos subscribimos a los topicos asociados los mismos
+    if(result.length>0){
+      var dispositivos = result; // Aquí guardamos los dispositivos encontrados en la variable dispositivos
+      //console.log("Cantidad de Topics de Dispositivos encontrados a subscribirme: "+dispositivos.length+" -->Topics:"); // Puedes hacer lo que quieras con la variable dispositivos, como imprimir en la consola
+      for(let i=0; i<dispositivos.length; i++){
+          //realizamos esta encapsulacion con function(indice), para que la variable topic_string tenga vida en el metodo asincronico client.subscribe(topic_string, function ()
+          let  string_topic_tipo = dispositivos[i].clase + ' ' + dispositivos[i].definicion;
+          if(topic_tipo == string_topic_tipo){
+            console.log("Mensaje Recibido Admitido:" + message.toString());
+            console.log("topic longitud-> " + topic_longitud);
+            console.log("topic user-> " + topic_user);
+            console.log("topic lugar-> " + topic_lugar);
+            console.log("topic ubicacion-> " + topic_ubicacion);
+            console.log("topic tipo-> " + topic_tipo);
+            console.log("topic nombre-> " + topic_nombre);
+          }
+      }
+    }
+  });
+  //*///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   if(topic == "/casa/led/1"){
     value_led_mqtt = message.toString();
