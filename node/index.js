@@ -44,7 +44,7 @@ setInterval(function(){
 var options = {
   port: 1883,
   host:'dataloggercdc.com',
-  clientId: 'server_01',
+  clientId: 'server_' + Math.round(Math.random() * (0- 10000) * -1) ,
   username: 'server',
   password: '731cd5b647196b6a3647155fae7b3cf58a0a8beede121f6c8ac769a363143301',
   keepalive: 60,
