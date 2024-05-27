@@ -89,7 +89,7 @@ $serie="";
                         <td><?php echo $device['serie'] ?></td>
                         <td><?php echo $device['mqtt'] ?></td>
                         <td><button  class="btn btn-icon btn-social rounded btn-social-colored light-green" title="Enviar Configuracion" align="center"
-                                     onclick="ConfigurarDispositivo(<?php echo $device['serie'],$coma,$device['id_user'],$coma,$comilla,$device['ubicacion'],$comilla,$coma,$comilla,$device['lugar'],$comilla,$coma,$comilla,$device['tipo'],$comilla,$coma,$comilla,$device['nombre'],$comilla ?>);">
+                                     onclick="ConfigurarDispositivo(<?php echo $device['serie'],$coma,$comilla,$user_name,$comilla,$coma,$comilla,$device['ubicacion'],$comilla,$coma,$comilla,$device['lugar'],$comilla,$coma,$comilla,$device['tipo'],$comilla,$coma,$comilla,$device['nombre'],$comilla ?>);">
                             <i class="fa fa-bolt"></i><i class="fa fa-bolt"></i>
                             </button>
                         </td>
@@ -209,7 +209,8 @@ $serie="";
 
 <?php $tiempo = time(); ?>
 <script type="text/javascript" src="linkPage.js?v=<?php echo $tiempo ?>"></script>
-<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<script src="mqtt.min.js"></script> 
+<!--script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script-->
 
   <script type="text/javascript">
 
@@ -411,16 +412,16 @@ $serie="";
           }
       }
 
-      function ConfigurarDispositivo(serie_device,id_user,ubicacion,lugar,tipo,nombre){
+      function ConfigurarDispositivo(serie_device,$user_name,ubicacion,lugar,tipo,nombre){
 
         alert("Entramos a configurar dispositivo. Serie: " + serie_device);
-        var topic_publish = serie_device + "/" + ubicacion + "/" + lugar + "/" + tipo + "/" + nombre;
-        id_user_string = id_user.toString();
+        var topic_publish = serie_device + "/" + lugar + "/" + ubicacion + "/" + tipo + "/" + nombre;
+        //id_user_string = id_user.toString();
 
-        console.log(topic_publish + "->" + id_user)
+        console.log(topic_publish + "->" + $user_name)
 
-        client.publish(topic_publish, id_user_string, (error) => {
-          console.log(error || 'Mensaje enviado!!!-->', topic_publish,'-->',id_user_string)
+        client.publish(topic_publish, $user_name, (error) => {
+          console.log(error || 'Mensaje enviado!!!-->', topic_publish,'-->',$user_name)
         })
 
       }

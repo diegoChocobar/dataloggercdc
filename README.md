@@ -79,3 +79,7 @@ Version 1.10 --> 10/05/2024 Stable
         * Nos Subscribimos a los topicos de la base de datos devices_tipo donde estan agendados los equipos permitidos
         * Se configuro el servidor para que inicie de forma automatica los servicios de MQTT, NODE, PM2, fundamentales para la ejecución de index.js.
         ** Iniciamos con el tratamiento de los datos recibidos por los equipos, estos datos se tratan en el servidor y decide si se guardan en base de datos.
+
+Version 1.11 --> 27/05/2024 
+    - La libreria mqtt.min.js ahora se encuentra alojada en el servidor nuestro y no la buscamos desde la web.
+    - Mejora en el tratamiento de datos recibidos en el servidor index.js

@@ -44,7 +44,7 @@ setInterval(function(){
 var options = {
   port: 1883,
   host:'dataloggercdc.com',
-  clientId: 'server_' + Math.round(Math.random() * (0- 10000) * -1) ,
+  clientId: 'server_01',
   username: 'server',
   password: '731cd5b647196b6a3647155fae7b3cf58a0a8beede121f6c8ac769a363143301',
   keepalive: 60,
@@ -141,7 +141,7 @@ client.on('message', function(topic, message){
 });
 
 client.on('reconnect', (error) => {
-    console.log('reconnecting:', error)
+    console.log('reconnecting mqtt:', error)
 })
 
 client.on('error', (error) => {
@@ -159,6 +159,8 @@ function tratamiento_data(topic,message){
   var topic_nombre = topic_array[4];
   var topic_longitud = topic_array.length;
 
+  var guardar_data = false;
+
   console.log("\nMensaje Recibido Admitido:" + message.toString());
   console.log("topic longitud-> " + topic_longitud);
   console.log("topic user-> " + topic_user);
@@ -168,33 +170,70 @@ function tratamiento_data(topic,message){
   console.log("topic nombre-> " + topic_nombre);
 
   //console.log("Entramos a tratar los datos");
-  if(topic_tipo == "Sensor Temperatura"){
-    console.log("Guardamos los datos de TEMPERATURA en la base de datos\n");
-  }
-  if(topic_tipo == "Sensor Presion"){
-    console.log("Guardamos los datos de PRESION en la base de datos\n");
-  }
-  if(topic_tipo == "Sensor Caudal"){
-    console.log("Guardamos los datos de CAUDAL en la base de datos\n");
-  }
-  if(topic_tipo == "Sensor Humedad"){
-    console.log("Guardamos los datos de HUMEDAD en la base de datos\n");
-  }
-  if(topic_tipo == "Sensor Gas"){
-    console.log("Guardamos los datos de GAS en la base de datos\n");
+    if(topic_tipo == "Sensor Temperatura"){
+      guardar_data = true;
+    }
+    if(topic_tipo == "Sensor Presion"){
+      guardar_data = true;
+    }
+    if(topic_tipo == "Sensor Caudal"){
+      guardar_data = true;
+    }
+    if(topic_tipo == "Sensor Humedad"){
+      guardar_data = true;
+    }
+    if(topic_tipo == "Sensor Gas"){
+      guardar_data = true;
+    }
+
+    if(topic_tipo == "Contactor Luz"){
+      guardar_data = false;
+    }
+    if(topic_tipo == "Contactor Bomba"){
+      guardar_data = false;
+    }
+    if(topic_tipo == "Contactor Valvula"){
+      guardar_data = false;
+    }
+    if(topic_tipo == "Contactor Potencia"){
+      guardar_data = false;
+    }
+
+  if(guardar_data == true){
+
+    //*/////////debemos buscar en DB devices los topics a los cual nos debemos comparar con los topic recibidos en el mensaje//////////////////
+    var query = "SELECT * FROM devices WHERE status = 1";
+    conn.query(query, function (err, result, fields) {
+      if (err) throw err;
+      //encontramos dispositivos y nos subscribimos a los topicos asociados los mismos
+      if(result.length>0){
+        var dispositivos = result; // Aquí guardamos los dispositivos encontrados en la variable dispositivos
+        //console.log("Cantidad de Topics de Dispositivos encontrados a subscribirme: "+dispositivos.length+" -->Topics:"); // Puedes hacer lo que quieras con la variable dispositivos, como imprimir en la consola
+        for(let i=0; i<dispositivos.length; i++){
+
+            if(topic == dispositivos[i].mqtt){
+              
+              const fechaSistema = new Date();// Obtener la fecha del sistema en formato YYYY-MM-DD   
+              const query = 'INSERT INTO data (id_user, id_devices, fecha, data, mqtt, observaciones, status) VALUES (?, ?, ?, ?, ?, ?, ?)';
+              // Ejecutar la consulta
+              conn.query(query, [dispositivos[i].id_user, dispositivos[i].id_devices, fechaSistema, message.toString(), dispositivos[i].mqtt, " ", "1"], (err, results, fields) => {
+                //conn.query(query, ["22", "23", "2024/05/06", "mensaje", "mqtt", "observariones", "1"], (err, results, fields) => {
+                if (err) {
+                  console.error('Error al insertar datos:', err.stack);
+                  return;
+                }
+                console.log('Datos insertados con éxito, ID del nuevo registro:', results.insertId);
+              });
+
+            }
+        }
+      }
+    });
+    //*///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  }else{
+    console.log("\n Dato NO Guardado en db: " + topic + "->" + message.toString());
   }
 
-  if(topic_tipo == "Contactor Luz"){
-    console.log("Guardamos los datos de LUZ en la base de datos\n");
-  }
-  if(topic_tipo == "Contactor Bomba"){
-    console.log("Guardamos los datos de BOMBA en la base de datos\n");
-  }
-  if(topic_tipo == "Contactor Valvula"){
-    console.log("Guardamos los datos de VALVULA en la base de datos\n");
-  }
-  if(topic_tipo == "Contactor Potencia"){
-    console.log("Guardamos los datos de POTENCIA en la base de datos\n");
-  }
 
 }

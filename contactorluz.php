@@ -132,8 +132,8 @@ if(!$logged){
 <?php $tiempo = time(); ?>
 <script type="text/javascript" src="linkPage.js?v=<?php echo $tiempo ?>"></script>
 
-
-<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<script src="mqtt.min.js"></script> 
+<!--script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script-->
 
 
 <?php $tiempo = time(); ?>

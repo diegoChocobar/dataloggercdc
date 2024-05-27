@@ -218,7 +218,8 @@ if(!$logged){
           $devices = $result->fetch_all(MYSQLI_ASSOC);
         ?>
         <?php foreach ($devices as $device ) { ?>
-          if(topic == '<?php echo $device['mqtt']; ?>'){
+          topic_db = '<?php echo $device['id_user']; ?>'. '/' .'<?php echo $device['ubicacion']; ?>'. '/' .'<?php echo $device['lugar']; ?>'. '/' .'<?php echo $device['tipo']; ?>'. '/' .'<?php echo $device['nombre']; ?>'
+          if(topic == topic_db){
 
             if(tipo_topic == "Sensor Temperatura"){
                 value_temp_mqtt = message.toString();
