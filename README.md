@@ -83,3 +83,4 @@ Version 1.10 --> 10/05/2024 Stable
 Version 1.11 --> 27/05/2024 
     - La libreria mqtt.min.js ahora se encuentra alojada en el servidor nuestro y no la buscamos desde la web.
     - Mejora en el tratamiento de datos recibidos en el servidor index.js
+    - Agregamos visualizacion de grafico para el muestreo de datos

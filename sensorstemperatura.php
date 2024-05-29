@@ -49,7 +49,7 @@ if(!$logged){
         <div class="padding">
 
           <!-- VALORES EN TIEMPO REAL -->
-          <div class="row">
+          <div class="row d-flex">
             <?php
               $result = $conn->query("SELECT * FROM `devices` WHERE `id_user`='".$user_id."' AND `status`='1' order by `mqtt` ");
               $devices = $result->fetch_all(MYSQLI_ASSOC);
@@ -57,19 +57,46 @@ if(!$logged){
             ?>
               <?php for($i=0;$i<$devices_num;$i++){ ?>
                 <?php if($devices[$i]['tipo'] == "Sensor Temperatura" ){ ?>
-                        <div class="col-xs-12 col-sm-4">
-                          <div class="box p-a">
+                        <div class="col-xs-8 col-sm-2 d-flex">
+                          <div class="box p-a flex-fill d-flex flex-column">
                             <div class="pull-left m-r">
-                              <span class="w-48 rounded  accent"  title="<?php echo $devices[$i]['lugar']."->".$devices[$i]['ubicacion'] ?>">
+                              <span class="w-48 rounded accent" title="<?php echo htmlspecialchars($devices[$i]['lugar'] . '->' . $devices[$i]['ubicacion']); ?>">
                                 <i class="fa fa-home"></i>
                               </span>
                             </div>
                             <div class="clear">
-                              <h4 class="m-0 text-lg _300"><b id="temp_<?php echo $devices[$i]['nombre'] ?>">--</b><span class="text-sm"> °C</span></h4>
-                              <small class="text-muted">Temp <?php echo $devices[$i]['nombre'] ?></small>
+                              <h4 class="m-0 text-lg _300"><b id="temp_<?php echo htmlspecialchars($devices[$i]['nombre']); ?>">--</b><span class="text-sm"> °C</span></h4>
+                              <small class="text-muted">Temp <?php echo htmlspecialchars($devices[$i]['nombre']); ?></small>
                             </div>
                           </div>
                         </div>
+
+                        <div class="col-xs-8 col-sm-9 d-flex">
+                          <div class="box p-a flex-fill d-flex flex-column">
+                            <div class="flex-grow-1">
+                              <div id="chart_<?php echo $i; ?>" style="height:80%; width:350px;"></div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <script>
+                          window.onload = function() {
+                            var chartDom = document.getElementById('chart_<?php echo $i; ?>');
+                            var myChart = echarts.init(chartDom);
+                            var option = {
+                              tooltip: { trigger: 'axis' },
+                              xAxis: { type: 'category', boundaryGap: true, data: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] },
+                              yAxis: { type: 'value', axisLabel: { formatter: '{value}' } },
+                              series: [{
+                                name: 'Max',
+                                type: 'line',
+                                data: [11, 110, 150, 130, 120, 130, 100]
+                              }]
+                            };
+                            myChart.setOption(option);
+                          };
+                        </script>
+
                 <?php } ?>
 
             <?php } ?>
@@ -125,6 +152,8 @@ if(!$logged){
 <!-- ajax -->
 <script src="libs/jquery/jquery-pjax/jquery.pjax.js"></script>
 <script src="html/scripts/ajax.js"></script>
+
+<script src="html/scripts/echarts.min.js"></script>
 
 <?php $tiempo = time(); ?>
 <script type="text/javascript" src="linkPage.js?v=<?php echo $tiempo ?>"></script>

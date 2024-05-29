@@ -119,17 +119,6 @@ client.on('message', function(topic, message){
   });
   //*///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  if(topic == "/casa/led/1"){
-    value_led_mqtt = message.toString();
-    if(value_led_mqtt == "prender"){
-        
-    }
-    if(value_led_mqtt == "OFF"){
-      
-    }
-    
-  }
-
   ///esto sirve para ver si nuestro servidor esta corriendo
   if(topic == "/server/status"){
     value_led_mqtt = message.toString();
