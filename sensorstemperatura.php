@@ -56,46 +56,76 @@ if(!$logged){
               $devices_num = count($devices);
             ?>
               <?php for($i=0;$i<$devices_num;$i++){ ?>
-                <?php if($devices[$i]['tipo'] == "Sensor Temperatura" ){ ?>
-                        <div class="col-xs-8 col-sm-2 d-flex">
-                          <div class="box p-a flex-fill d-flex flex-column">
-                            <div class="pull-left m-r">
-                              <span class="w-48 rounded accent" title="<?php echo htmlspecialchars($devices[$i]['lugar'] . '->' . $devices[$i]['ubicacion']); ?>">
-                                <i class="fa fa-home"></i>
-                              </span>
-                            </div>
-                            <div class="clear">
-                              <h4 class="m-0 text-lg _300"><b id="temp_<?php echo htmlspecialchars($devices[$i]['nombre']); ?>">--</b><span class="text-sm"> °C</span></h4>
-                              <small class="text-muted">Temp <?php echo htmlspecialchars($devices[$i]['nombre']); ?></small>
-                            </div>
+                <?php if($devices[$i]['tipo'] == "Sensor Temperatura" ){ 
+                      // Obtener los datos para el gráfico
+                      $device_id = $devices[$i]['id_devices'];
+                      //$stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? ORDER BY `fecha`");//muestra todos los datos
+                      //$stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK) ORDER BY `fecha`");//muestra los datos de la ultima semana
+                      $stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ORDER BY `fecha`");//muestra los datos del ultimo mes
+                      $stmt_data->bind_param("i", $device_id);
+                      $stmt_data->execute();
+                      $result_data = $stmt_data->get_result();
+                      $data_points = $result_data->fetch_all(MYSQLI_ASSOC);
+
+                      // Preparar los datos para el gráfico
+                      $fechas = [];
+                      $datos = [];
+                      foreach ($data_points as $point) {
+                          $fechas[] = $point['fecha'];
+                          $datos[] = $point['data'];
+                      }
+                      $fechas_json = json_encode($fechas);
+                      $datos_json = json_encode($datos);
+                ?>
+                    
+                      <div class="col-xs-8 col-sm-2 d-flex">
+                        <div class="box p-a flex-fill d-flex flex-column">
+                          <div class="pull-left m-r">
+                            <span class="w-48 rounded accent" title="<?php echo htmlspecialchars($devices[$i]['lugar'] . '->' . $devices[$i]['ubicacion']); ?>">
+                              <i class="fa fa-home"></i>
+                            </span>
+                          </div>
+                          <div class="clear">
+                            <h4 class="m-0 text-lg _300"><b id="temp_<?php echo htmlspecialchars($devices[$i]['nombre']); ?>">--</b><span class="text-sm"> °C</span></h4>
+                            <small class="text-muted">Temp <?php echo htmlspecialchars($devices[$i]['nombre']); ?></small>
                           </div>
                         </div>
+                      </div>
 
-                        <div class="col-xs-8 col-sm-9 d-flex">
-                          <div class="box p-a flex-fill d-flex flex-column">
-                            <div class="flex-grow-1">
-                              <div id="chart_<?php echo $i; ?>" style="height:80%; width:350px;"></div>
-                            </div>
+                      <div class="col-xs-8 col-sm-6 d-flex">
+                        <div class="box p-a flex-fill d-flex flex-column">
+                          <div class="flex-grow-1">
+                            <div id="chart_<?php echo $i; ?>" style="height:90%; width:350PX;"></div>
                           </div>
                         </div>
+                      </div>
 
-                        <script>
-                          window.onload = function() {
-                            var chartDom = document.getElementById('chart_<?php echo $i; ?>');
-                            var myChart = echarts.init(chartDom);
-                            var option = {
-                              tooltip: { trigger: 'axis' },
-                              xAxis: { type: 'category', boundaryGap: true, data: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] },
-                              yAxis: { type: 'value', axisLabel: { formatter: '{value}' } },
-                              series: [{
-                                name: 'Max',
-                                type: 'line',
-                                data: [11, 110, 150, 130, 120, 130, 100]
-                              }]
-                            };
-                            myChart.setOption(option);
+                      <script>
+                        window.onload = function() {
+                          var fechas = <?php echo $fechas_json; ?>;
+                          var datos = <?php echo $datos_json; ?>;
+                          //console.log("data:"+datos+"fechas:"+fechas)
+                          
+                          // Combinar fechas y datos en pares para el gráfico de dispersión
+                          var dataPoints = fechas.map(function(fecha, index) {
+                            return [fecha, datos[index]];
+                          });
+                          var chartDom = document.getElementById('chart_<?php echo $i; ?>');
+                          var myChart = echarts.init(chartDom);
+                          var option = {
+                            tooltip: { trigger: 'axis' },
+                            xAxis: { type: 'time', boundaryGap: false, data: fechas, axisLabel: { show: true } },
+                            yAxis: { type: 'value', axisLabel: { formatter: '{value}' },splitNumber: 2 },
+                            series: [{
+                              name: 'Data',
+                              type: 'scatter',
+                              symbolSize: 5, // Ajusta el tamaño de los puntos
+                              data: dataPoints
+                            }]
                           };
-                        </script>
+                          myChart.setOption(option);
+                        };
+                      </script>
 
                 <?php } ?>
 
