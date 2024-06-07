@@ -85,3 +85,6 @@ Version 1.11 --> 27/05/2024
     - Mejora en el tratamiento de datos recibidos en el servidor index.js
     - Agregamos visualizacion de grafico para el muestreo de datos
     - Se logra la correcta visualizacion de los datos en el grafico
+
+Version 1.12 --> 07/06/2024 
+    - en devices.php agregamos la posibilidad de poder configura los sensores de temperatura con un tiempo de muestreo y tiempo de guardado de datos determinado.

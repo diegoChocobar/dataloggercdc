@@ -4,7 +4,8 @@ $logged = $_SESSION['logged'];
 
 
 if(!$logged){
-  echo "Ingreso no autorizado";
+  echo "Ingreso no autorizado.";
+  echo '<meta http-equiv="refresh" content="5; url=login.php">';
   die();
 }else{
   $user_name = $_SESSION['users_name'];
@@ -60,8 +61,8 @@ if(!$logged){
                       // Obtener los datos para el gráfico
                       $device_id = $devices[$i]['id_devices'];
                       //$stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? ORDER BY `fecha`");//muestra todos los datos
-                      //$stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK) ORDER BY `fecha`");//muestra los datos de la ultima semana
-                      $stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ORDER BY `fecha`");//muestra los datos del ultimo mes
+                      $stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK) ORDER BY `fecha`");//muestra los datos de la ultima semana
+                      //$stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ORDER BY `fecha`");//muestra los datos del ultimo mes
                       $stmt_data->bind_param("i", $device_id);
                       $stmt_data->execute();
                       $result_data = $stmt_data->get_result();
@@ -119,7 +120,7 @@ if(!$logged){
                             series: [{
                               name: 'Data',
                               type: 'scatter',
-                              symbolSize: 5, // Ajusta el tamaño de los puntos
+                              symbolSize: 3, // Ajusta el tamaño de los puntos
                               data: dataPoints
                             }]
                           };

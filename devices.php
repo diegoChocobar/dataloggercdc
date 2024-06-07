@@ -56,7 +56,13 @@ $serie="";
 
         <!-- SECCION CENTRAL -->
         <div class="padding">
-
+          <?php
+            //aquí como todo estuvo OK, resta controlar que no exista previamente el Dispositivo.
+            $result = $conn->query("SELECT * FROM `devices` WHERE `id_user` = '".$user_id."' order by `mqtt` ");
+            $devices = $result->fetch_all(MYSQLI_ASSOC);
+            $coma = ', ';
+            $comilla ="'";
+          ?>
           <div class="row">
             <div class="col-sm-12">
               <div class="box">
@@ -70,26 +76,25 @@ $serie="";
                       <th>Fecha</th>
                       <th>Serie</th>
                       <th>Topic</th>
+                      <th>Activar</th>
                       <th>Configurar</th>
                       <th>Eliminar</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <?php
-                    //aquí como todo estuvo OK, resta controlar que no exista previamente el Dispositivo.
-                    $result = $conn->query("SELECT * FROM `devices` WHERE `id_user` = '".$user_id."' order by `mqtt` ");
-                    $devices = $result->fetch_all(MYSQLI_ASSOC);
-                    $coma = ', ';
-                    $comilla ="'";
-                    ?>
                     <?php foreach ($devices as $device) {?>
                       <tr>
                         <td><?php echo $device['nombre'] ?></td>
                         <td><?php echo $device['fecha_creado'] ?></td>
                         <td><?php echo $device['serie'] ?></td>
                         <td><?php echo $device['mqtt'] ?></td>
-                        <td><button  class="btn btn-icon btn-social rounded btn-social-colored light-green" title="Enviar Configuracion" align="center"
-                                     onclick="ConfigurarDispositivo(<?php echo $device['serie'],$coma,$comilla,$user_name,$comilla,$coma,$comilla,$device['ubicacion'],$comilla,$coma,$comilla,$device['lugar'],$comilla,$coma,$comilla,$device['tipo'],$comilla,$coma,$comilla,$device['nombre'],$comilla ?>);">
+                        <td><button  class="btn btn-icon btn-social rounded btn-social-colored light-green" title="Activar Dispositivo" align="center"
+                                     onclick="ActivarDispositivo(<?php echo $device['serie'],$coma,$comilla,$user_name,$comilla,$coma,$comilla,$device['ubicacion'],$comilla,$coma,$comilla,$device['lugar'],$comilla,$coma,$comilla,$device['tipo'],$comilla,$coma,$comilla,$device['nombre'],$comilla ?>);">
+                            <i class="fa fa-bolt"></i><i class="fa fa-bolt"></i>
+                            </button>
+                        </td>
+                        <td><button class="btn btn-icon btn-social rounded btn-social-colored light-green" title="Configurar Dispositivo" align="center" data-toggle="modal"
+                                     data-target="#modal-configuracion-<?php echo $device['serie']?>">
                             <i class="fa fa-bolt"></i><i class="fa fa-bolt"></i>
                             </button>
                         </td>
@@ -124,8 +129,8 @@ $serie="";
                               $result = $conn->query("SELECT * FROM `devices_tipo` ");
                               $devices_tipo = $result->fetch_all(MYSQLI_ASSOC);
                              ?>
-                             <?php foreach ($devices_tipo as $devices) {?>
-                               <option value="<?php echo $devices['clase']." ".$devices['definicion']?>"><?php echo $devices['clase']." ".$devices['definicion'] ?></option>
+                             <?php foreach ($devices_tipo as $device_tipo) {?>
+                               <option value="<?php echo $device_tipo['clase']." ".$device_tipo['definicion']?>"><?php echo $device_tipo['clase']." ".$device_tipo['definicion'] ?></option>
                              <?php } ?>
                       </select>
                     </div>
@@ -155,6 +160,35 @@ $serie="";
 
           </div>
 
+          <?php foreach ($devices as $device) {?>
+            <!-- MODAL Informacion Turno-->
+              <div id="modal-configuracion-<?php echo $device['serie']?>" class="modal black-overlay" data-backdrop="static">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h4 class="modal-title"><?php echo $device['tipo']?></h4>
+                        <h4 class="modal-title"><?php echo $device['serie'] ?></h4>
+                      </div>
+                      <div class="modal-body">
+                        <h5>Muestreo en Dispositivo:  <input type="number" id="timeMuestreo<?php echo $device['serie'] ?>" style="background-color: #888888; color: white;width: 75px;border: none;" value="5" min="2" step="2" onkeydown="return false"> seg</h5>
+                        <br>
+                        <h5>Guardar Dato en Servidor: <input type="number" id="timeGuardar<?php echo $device['serie'] ?>"  style="background-color: #888888; color: white;width: 75px;border: none;" value="60" min="1" step="1" onkeydown="return false" onchange="CambiaTimeDB(<?php echo $device['serie'] ?>)"> min</h5>
+                        <br>
+                        <h6>La cantidad maxima de datos que se puede gurdar son 2500. <br>Con esto podemos medir <input type="number" id="DiasdeMedicion<?php echo $device['serie'] ?>" style="width: 50px;border: none;" value="104" require > dias</h6>
+                      </div>
+                      <div class='modal-footer'>
+                        <div class="col-sm-4">
+                          <button type='button' id="buttonconfiguracion<?php echo $device['serie'] ?>" name="buttonconfiguracion<?php echo $device['serie'] ?>" class="btn green-500 btn-block p-x-md light-green" onclick="EnviarConfiguracion(<?php echo $device['serie'] ?>);">Enviar</button>
+                        </div>
+                        <div class="col-sm-4">
+                          <button type='button' id="salirconfiguracion<?php echo $device['serie'] ?>" name="salirconfiguracion<?php echo $device['serie'] ?>" class="btn red btn-block p-x-md pink" data-dismiss="modal">Salir</button>
+                        </div>
+                      </div>
+                    </div><!-- /.modal-content -->
+                  </div>
+              </div>
+            <!-- FIN MODAL Informacion Turno-->
+          <?php } ?>
 
         </div>
 
@@ -412,17 +446,52 @@ $serie="";
           }
       }
 
-      function ConfigurarDispositivo(serie_device,$user_name,ubicacion,lugar,tipo,nombre){
+      function ActivarDispositivo(serie_device,user_name,ubicacion,lugar,tipo,nombre){
 
         alert("Entramos a configurar dispositivo. Serie: " + serie_device);
-        var topic_publish = serie_device + "/" + lugar + "/" + ubicacion + "/" + tipo + "/" + nombre;
+        var topic_configurar = serie_device + "/write/configuracion_topic/x/x"; 
+        var topic_publish = user_name + "/" + lugar + "/" + ubicacion + "/" + tipo + "/" + nombre;
         //id_user_string = id_user.toString();
 
-        console.log(topic_publish + "->" + $user_name)
+        //console.log(topic_configurar + "->" + topic_publish)
 
-        client.publish(topic_publish, $user_name, (error) => {
-          console.log(error || 'Mensaje enviado!!!-->', topic_publish,'-->',$user_name)
+        client.publish(topic_configurar, topic_publish, (error) => {
+          console.log(error || 'Mensaje enviado!!!-->', topic_configurar,'-->',topic_publish)
         })
+
+      }
+
+      function CambiaTimeDB(serie){
+
+        var MaxLecturas = 2500;
+        var timelectura = $("#timeGuardar"+serie).val();
+        var inputElement = document.getElementById("DiasdeMedicion"+serie);
+        
+        var lh =  60/timelectura;//lecturas por hora 
+        var ld = lh * 24; //lectruas por dia
+        var diasMaxLectura = MaxLecturas/ld;
+        //alert("Tiempo Maximo en Dias que podemos guardar en servidor con esta configuracion:" + diasMaxLectura);
+        inputElement.value = diasMaxLectura; // Aquí puedes establecer el valor que desees
+      }
+
+      function EnviarConfiguracion(serie){
+        var timeMuestreo = $("#timeMuestreo"+serie).val();
+        var timelectura = $("#timeGuardar"+serie).val();
+        //alert("Enviamos configuracion al equipo:"+serie+" .TimeMuestreo:"+timeMuestreo+" TimeDB:"+timelectura);
+        var topic_configurar_muestreo = serie + "/write/configuracion_time/muestreo/x"; 
+        var topic_configurar_guardar = serie + "/write/configuracion_time/guardar/x"; 
+
+        client.publish(topic_configurar_muestreo, timeMuestreo, (error) => {
+          console.log(error || 'Mensaje enviado!!!-->', topic_configurar_muestreo,'-->',timeMuestreo)
+        })
+        client.publish(topic_configurar_guardar, timelectura, (error) => {
+          console.log(error || 'Mensaje enviado!!!-->', topic_configurar_guardar,'-->',timelectura)
+        })
+
+        
+        setTimeout(function() {
+          $("#modal-configuracion-"+serie).modal('toggle'); // Oculta el modal después del retraso
+        }, 300); // Duración del retraso en milisegundos (500ms en este caso)
 
       }
 
