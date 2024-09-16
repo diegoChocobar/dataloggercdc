@@ -49,21 +49,25 @@ if(!$logged){
         <!-- SECCION CENTRAL -->
         <div class="padding">
 
-          <!-- VALORES EN TIEMPO REAL -->
-          <div class="row d-flex">
             <?php
-              $result = $conn->query("SELECT * FROM `devices` WHERE `id_user`='".$user_id."' AND `status`='1' order by `mqtt` ");
+              $result = $conn->query("SELECT * FROM `devices` WHERE `id_user`='".$user_id."' AND `tipo`='Sensor Temperatura' AND `status`='1' order by `mqtt` ");
               $devices = $result->fetch_all(MYSQLI_ASSOC);
               $devices_num = count($devices);
             ?>
-              <?php for($i=0;$i<$devices_num;$i++){ ?>
-                <?php if($devices[$i]['tipo'] == "Sensor Temperatura" ){ 
+            
+              <?php for($i=0;$i<$devices_num;$i++){ 
                       // Obtener los datos para el gráfico
                       $device_id = $devices[$i]['id_devices'];
-                      //$stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? ORDER BY `fecha`");//muestra todos los datos
-                      $stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK) ORDER BY `fecha`");//muestra los datos de la ultima semana
-                      //$stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ORDER BY `fecha`");//muestra los datos del ultimo mes
-                      $stmt_data->bind_param("i", $device_id);
+                      if($_SESSION['users_fechInicio'] < $_SESSION['users_fechaFin']){
+                        //$stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ORDER BY `fecha`");//muestra los datos del ultimo mes
+                        //$stmt_data->bind_param("i", $device_id);
+                        $stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` BETWEEN ? AND ? ORDER BY `fecha`");
+                        $stmt_data->bind_param("iss", $device_id, $_SESSION['users_fechaInicio'], $_SESSION['users_fechaFin']);
+                      }else{
+                        $stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK) ORDER BY `fecha`");//muestra los datos de la ultima semana
+                        $stmt_data->bind_param("i", $device_id);
+                      }
+
                       $stmt_data->execute();
                       $result_data = $stmt_data->get_result();
                       $data_points = $result_data->fetch_all(MYSQLI_ASSOC);
@@ -75,10 +79,12 @@ if(!$logged){
                           $fechas[] = $point['fecha'];
                           $datos[] = $point['data'];
                       }
-                      $fechas_json = json_encode($fechas);
-                      $datos_json = json_encode($datos);
+                      $fechas_json[$i] = json_encode($fechas);
+                      $datos_json[$i] = json_encode($datos);
                 ?>
                     
+              <!-- VALORES EN TIEMPO REAL -->
+              <div class="row d-flex">
                       <div class="col-xs-8 col-sm-2 d-flex">
                         <div class="box p-a flex-fill d-flex flex-column">
                           <div class="pull-left m-r">
@@ -92,53 +98,71 @@ if(!$logged){
                           </div>
                         </div>
                       </div>
-
+                      
                       <div class="col-xs-8 col-sm-6 d-flex">
                         <div class="box p-a flex-fill d-flex flex-column">
                           <div class="flex-grow-1">
-                            <div id="chart_<?php echo $i; ?>" style="height:90%; width:350PX;"></div>
+                            <div id="chart_<?php echo $i; ?>" style="height:90%; width:650PX;" data-toggle="modal" data-target="#modal-senstemp-<?php echo $devices[$i]['id_devices']; ?>"></div>
                           </div>
                         </div>
                       </div>
 
-                      <script>
-                        window.onload = function() {
-                          var fechas = <?php echo $fechas_json; ?>;
-                          var datos = <?php echo $datos_json; ?>;
-                          //console.log("data:"+datos+"fechas:"+fechas)
-                          
-                          // Combinar fechas y datos en pares para el gráfico de dispersión
-                          var dataPoints = fechas.map(function(fecha, index) {
-                            return [fecha, datos[index]];
-                          });
-                          var chartDom = document.getElementById('chart_<?php echo $i; ?>');
-                          var myChart = echarts.init(chartDom);
-                          var option = {
-                            tooltip: { trigger: 'axis' },
-                            xAxis: { type: 'time', boundaryGap: false, data: fechas, axisLabel: { show: true } },
-                            yAxis: { type: 'value', axisLabel: { formatter: '{value}' },splitNumber: 2 },
-                            series: [{
-                              name: 'Data',
-                              type: 'scatter',
-                              symbolSize: 3, // Ajusta el tamaño de los puntos
-                              data: dataPoints
-                            }]
-                          };
-                          myChart.setOption(option);
-                        };
-                      </script>
+              
 
-                <?php } ?>
+              </div>
+
+              
+                <!-- Modal -->
+                <div id="modal-senstemp-<?php echo $devices[$i]['id_devices']; ?>" class="modal black-overlay" data-backdrop="static">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                          <div class="modal-header">
+                            <h4 class="modal-title">Seleccione las Fechas Muestreo</h4>
+                          </div>
+                          <div class="modal-body">
+                            <label for="fecha_inicio">Fecha Inicio:</label>
+                            <input type="date" id="fecha_inicio_<?php echo $devices[$i]['id_devices']; ?>"><br><br>
+                            <label for="fecha_fin">Fecha Fin:</label>
+                            <input type="date" id="fecha_fin_<?php echo $devices[$i]['id_devices']; ?>"><br><br>
+                          </div>
+
+                          <div class='modal-footer'>
+                              <div class="col-sm-4">
+                                <button type='button' id="aceptar" name="aceptar" class="btn green-500 btn-block p-x-md light-green" onclick="FechasDatos(<?php echo $devices[$i]['id_devices']; ?>);">Aceptar</button>
+                              </div>
+                              <div class="col-sm-4">
+                                <button type='button' id="salir" name="salir" class="btn red btn-block p-x-md pink" data-dismiss="modal">Salir</button>
+                              </div>
+                          </div>
+
+                      </div>
+                    </div>
+                </div>
 
             <?php } ?>
 
-          </div>
+            <script>
+                var graficosPorCargar = []; // Array para almacenar los gráficos
+                var datosGraficos = [];
+
+                <?php for($i=0; $i<$devices_num; $i++){ ?>
+                    graficosPorCargar.push(<?php echo $i; ?>); // Añade el índice a la lista
+                    datosGraficos[<?php echo $i; ?>] = {
+                      fechas: <?php echo $fechas_json[$i]; ?>,
+                      datos: <?php echo $datos_json[$i]; ?>
+                    };
+                <?php } ?>
+                console.log("numero de dispositivos:" + <?php echo $devices_num; ?>);
+
+                // Cuando la ventana se carga completamente, se ejecutan las funciones
+                window.onload = function() {
+                    graficosPorCargar.forEach(function(i) {
+                        CargarGraficos(i); // Llama a la función para cada gráfico
+                    });
+                };
+            </script>
 
         </div>
-
-        <!-- ############ PAGE END-->
-
-      </div>
 
     </div>
     <!-- / -->
@@ -321,7 +345,94 @@ if(!$logged){
     })
     //*******************************************************************************
 
+    function FechasDatos(device_id){
+      fecha_inicio = $("#fecha_inicio_"+device_id).val();
+      fecha_fin = $("#fecha_fin_"+device_id).val();
 
+      //alert("Cambio de fecha. Inicio:" + fecha_inicio + " Fin:" + fecha_fin);
+      if(fecha_inicio < fecha_fin){
+            ///*//////////////////////////////////////////////////////////////////////////////////////
+            var formData = new FormData();
+            formData.append("CambioFechaMuestreo", true);
+            formData.append("fecha_inicio", fecha_inicio);
+            formData.append("fecha_fin", fecha_fin);
+            /////////////////////////////////////////////////////////////////////////////////////////
+
+            ///////////////funcion de  de escucha al php/////////////
+            var objX = new XMLHttpRequest();
+
+            objX.onreadystatechange = function() {
+              if(objX.readyState === 4) {
+              if(objX.status === 200) {
+                //alert(objBuscarComprobante.responseText);
+                var data = JSON.parse(objX.responseText); //Parsea el Json al objeto anterior.
+
+                if(data.status==true){
+                    alert(data.data);
+                    $("#modal-senstemp-"+device_id).modal('toggle');
+                    window.location.reload(true);
+                }else{
+                    alert(data.error);
+                    $("#modal-senstemp-"+device_id).modal('toggle');
+                }
+
+              } else {
+                alert('Error Code 111: ' +  objX.status);
+                alert('Error Message 222: ' + objX.statusText);
+              }
+              }
+            }
+            objX.open('POST', 'consultas.php',true);
+            objX.send(formData);
+            //*/
+            ////////////////////////////////////////////////////////////////
+      }else{
+        alert("La fecha de Inicio debe ser menor que la fecha de Fin");
+      }
+
+    }
+
+    function CargarGraficos(grafico_numero) {
+        var fechas = datosGraficos[grafico_numero].fechas;
+        var datos = datosGraficos[grafico_numero].datos;
+
+        var fecha_inicio = "<?php echo $_SESSION['users_fechaInicio']; ?>";
+        var fecha_fin = "<?php echo $_SESSION['users_fechaFin']; ?>";
+
+        //console.log("fehaInicio:"+fecha_inicio+"fechaFin"+fecha_fin);
+        //console.log("data:"+datos+"fechas:"+fechas)
+
+        ////////////////////////Tamaño de graficos ////////////////////////
+        var chartElement = document.getElementById("chart_"+grafico_numero);
+        // Verificar el tamaño de la ventana
+        if (window.innerWidth <= 767) {
+          // Establecer el ancho para dispositivos móviles
+          chartElement.style.width = '350px';
+        } else {
+          // Establecer el ancho para dispositivos más grandes
+          chartElement.style.width = '650px';
+        }
+        //////////////////////////////////////////////////////////////////
+
+        // Combinar fechas y datos en pares para el gráfico de dispersión
+        var dataPoints = fechas.map(function(fecha, index) {
+          return [fecha, datos[index]];
+        });
+        var chartDom = document.getElementById('chart_'+grafico_numero);
+        var myChart = echarts.init(chartDom);
+        var option = {
+          tooltip: { trigger: 'axis' },
+          xAxis: { type: 'time', boundaryGap: false, data: fechas, axisLabel: { show: true } },
+          yAxis: { type: 'value', axisLabel: { formatter: '{value}' },splitNumber: 2 },
+          series: [{
+            name: 'Data',
+            type: 'scatter',
+            symbolSize: 3, // Ajusta el tamaño de los puntos
+            data: dataPoints
+          }]
+        };
+        myChart.setOption(option);
+      };
 
 
 

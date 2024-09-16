@@ -110,4 +110,16 @@ if( isset($_POST['BuscarDispositivo']) ) {
   echo json_encode($data, JSON_FORCE_OBJECT);
 }
 
+if( isset($_POST['CambioFechaMuestreo']) ) {
+
+  $data = array();
+  $_SESSION['users_fechaInicio'] = strip_tags($_POST['fecha_inicio']);
+  $_SESSION['users_fechaFin'] = strip_tags($_POST['fecha_fin']);
+
+  $data['status'] = true;
+  $data['data'] = "fechas cargadas con exito.";
+
+  echo json_encode($data, JSON_FORCE_OBJECT);
+}
+
  ?>

@@ -30,6 +30,10 @@ if(isset($_POST['email']) && isset($_POST['password'])) {
           $_SESSION['users_name'] = $users_resultados[0]['username'];
           $_SESSION['users_email'] = $users_resultados[0]['email'];
           $_SESSION['users_password'] = $users_resultados[0]['password'];
+          $_SESSION['users_fechaFin'] = date('Y-m-d');
+          $fecha_inicio = new DateTime();
+          $fecha_inicio->modify('-10 day');
+          $_SESSION['users_fechaInicio'] = $fecha_inicio->format('Y-m-d');
           $_SESSION['conection_status_emqx'] = "OFF";
 
           $msg .= "Exito!!!";

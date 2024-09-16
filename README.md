@@ -88,3 +88,13 @@ Version 1.11 --> 27/05/2024
 
 Version 1.12 --> 07/06/2024 
     - en devices.php agregamos la posibilidad de poder configura los sensores de temperatura con un tiempo de muestreo y tiempo de guardado de datos determinado.
+
+Version 1.13 --> 16/09/2024 
+    - Barra Lateral Izquierda: Se agrego el nombre de usuario, nos sirve de indentificacion.
+    - Se limpio un poco la pagina principal, dashboard.php
+    - Index y Login: se agregaron fechas de inicio y fin, sirven para la visualizacion de los datos
+    - sensorstemperatura.php: 
+        * Se trabajo en la visualizacion de multiples sensores con su respectivo grafico.
+        * Se agrego logica para detectar el tamaño de pantalla en la que se esta ejecutando el programa y de esa forma poder adaptar el tamaño de los graficos segun convenga.
+        * Se agrego un modal en el cual podemos modificar las fecha de Inicio y Fin para la visualizacion de los datos
+    

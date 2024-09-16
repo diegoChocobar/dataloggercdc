@@ -101,18 +101,33 @@
                 </a>
               </li>
 
-              <li>
+              <!--li>
                 <a id="linkFunciones" href="Funciones.php">
                   <span class="nav-icon">
                     <i class="fa fa-cogs"></i>
                   </span>
                   <span class="nav-text">Funciones</span>
                 </a>
-              </li>
+              </li-->
 
             </ul>
           </nav>
         </div>
+
+      <div class="b-t">
+        <div class="nav-fold">
+          <a href="dashboard.php">
+            <span class="pull-left">
+              <img src="assets/images/a5.jpg" alt="..." class="w-40 img-circle">
+            </span>
+            <span class="clear hidden-folded p-x">
+              <span class="block _500"><?php echo $_SESSION['users_name'] ?></span>
+              <small class="block text-muted"><i class="fa fa-circle text-success m-r-sm"></i>online</small>
+            </span>
+          </a>
+        </div>
+      </div>
+
       </div>
     </div>
     <!-- / -->
