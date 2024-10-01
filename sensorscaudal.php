@@ -4,7 +4,8 @@ $logged = $_SESSION['logged'];
 
 
 if(!$logged){
-  echo "Ingreso no autorizado";
+  echo "Ingreso no autorizado.";
+  echo '<meta http-equiv="refresh" content="5; url=login.php">';
   die();
 }else{
   $user_name = $_SESSION['users_name'];
@@ -48,41 +49,122 @@ if(!$logged){
         <!-- SECCION CENTRAL -->
         <div class="padding">
 
-          <!-- VALORES EN TIEMPO REAL -->
-          <div class="row">
             <?php
-              $result = $conn->query("SELECT * FROM `devices` WHERE `id_user`='".$user_id."' AND `status`='1' order by `mqtt` ");
+              $result = $conn->query("SELECT * FROM `devices` WHERE `id_user`='".$user_id."' AND `tipo`='Sensor Caudal' AND `status`='1' order by `mqtt` ");
               $devices = $result->fetch_all(MYSQLI_ASSOC);
               $devices_num = count($devices);
             ?>
-              <?php for($i=0;$i<$devices_num;$i++){ ?>
-                <?php if($devices[$i]['tipo'] == "Sensor Caudal" ){ ?>
-                        <div class="col-xs-12 col-sm-4">
-                          <div class="box p-a">
-                            <div class="pull-left m-r">
-                              <span class="w-48 rounded  accent"  title="<?php echo $devices[$i]['lugar']."->".$devices[$i]['ubicacion'] ?>">
-                                <i class="fa fa-home"></i>
-                              </span>
-                            </div>
-                            <div class="clear">
-                              <h4 class="m-0 text-lg _300"><b id="caudal_<?php echo $devices[$i]['nombre'] ?>">--</b><span class="text-sm"> l/s</span></h4>
-                              <small class="text-muted">Caudal <?php echo $devices[$i]['nombre'] ?></small>
-                            </div>
+            
+              <?php for($i=0;$i<$devices_num;$i++){ 
+                      // Obtener los datos para el gráfico
+                      $device_id = $devices[$i]['id_devices'];
+                      if($_SESSION['users_fechInicio'] < $_SESSION['users_fechaFin']){
+                        //$stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ORDER BY `fecha`");//muestra los datos del ultimo mes
+                        //$stmt_data->bind_param("i", $device_id);
+                        $stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` BETWEEN ? AND ? ORDER BY `fecha`");
+                        $stmt_data->bind_param("iss", $device_id, $_SESSION['users_fechaInicio'], $_SESSION['users_fechaFin']);
+                      }else{
+                        $stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK) ORDER BY `fecha`");//muestra los datos de la ultima semana
+                        $stmt_data->bind_param("i", $device_id);
+                      }
+
+                      $stmt_data->execute();
+                      $result_data = $stmt_data->get_result();
+                      $data_points = $result_data->fetch_all(MYSQLI_ASSOC);
+
+                      // Preparar los datos para el gráfico
+                      $fechas = [];
+                      $datos = [];
+                      foreach ($data_points as $point) {
+                          $fechas[] = $point['fecha'];
+                          $datos[] = $point['data'];
+                      }
+                      $fechas_json[$i] = json_encode($fechas);
+                      $datos_json[$i] = json_encode($datos);
+                ?>
+                    
+              <!-- VALORES EN TIEMPO REAL -->
+              <div class="row d-flex">
+                      <div class="col-xs-8 col-sm-2 d-flex">
+                        <div class="box p-a flex-fill d-flex flex-column">
+                          <div class="pull-left m-r">
+                            <span class="w-48 rounded accent" title="<?php echo htmlspecialchars($devices[$i]['lugar'] . '->' . $devices[$i]['ubicacion']); ?>">
+                              <i class="fa fa-home"></i>
+                            </span>
+                          </div>
+                          <div class="clear">
+                            <h4 class="m-0 text-lg _300"><b id="caudal_<?php echo htmlspecialchars($devices[$i]['nombre']); ?>">--</b><span class="text-sm"> p/seg</span></h4>
+                            <small class="text-muted">Caudal <?php echo htmlspecialchars($devices[$i]['nombre']); ?></small>
                           </div>
                         </div>
-                <?php } ?>
+                      </div>
+                      
+                      <div class="col-xs-8 col-sm-6 d-flex">
+                        <div class="box p-a flex-fill d-flex flex-column">
+                          <div class="flex-grow-1">
+                            <div id="chart_<?php echo $i; ?>" style="height:90%; width:650PX;" data-toggle="modal" data-target="#modal-senstemp-<?php echo $devices[$i]['id_devices']; ?>"></div>
+                          </div>
+                        </div>
+                      </div>
+
+              
+
+              </div>
+
+              
+                <!-- Modal -->
+                <div id="modal-senstemp-<?php echo $devices[$i]['id_devices']; ?>" class="modal black-overlay" data-backdrop="static">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                          <div class="modal-header">
+                            <h4 class="modal-title">Seleccione las Fechas Muestreo</h4>
+                          </div>
+                          <div class="modal-body">
+                            <label for="fecha_inicio">Fecha Inicio:</label>
+                            <input type="date" id="fecha_inicio_<?php echo $devices[$i]['id_devices']; ?>"><br><br>
+                            <label for="fecha_fin">Fecha Fin:</label>
+                            <input type="date" id="fecha_fin_<?php echo $devices[$i]['id_devices']; ?>"><br><br>
+                          </div>
+
+                          <div class='modal-footer'>
+                              <div class="col-sm-4">
+                                <button type='button' id="aceptar" name="aceptar" class="btn green-500 btn-block p-x-md light-green" onclick="FechasDatos(<?php echo $devices[$i]['id_devices']; ?>);">Aceptar</button>
+                              </div>
+                              <div class="col-sm-4">
+                                <button type='button' id="salir" name="salir" class="btn red btn-block p-x-md pink" data-dismiss="modal">Salir</button>
+                              </div>
+                          </div>
+
+                      </div>
+                    </div>
+                </div>
 
             <?php } ?>
 
-          </div>
+            <script>
+                var graficosPorCargar = []; // Array para almacenar los gráficos
+                var datosGraficos = [];
+
+                <?php for($i=0; $i<$devices_num; $i++){ ?>
+                    graficosPorCargar.push(<?php echo $i; ?>); // Añade el índice a la lista
+                    datosGraficos[<?php echo $i; ?>] = {
+                      fechas: <?php echo $fechas_json[$i]; ?>,
+                      datos: <?php echo $datos_json[$i]; ?>
+                    };
+                <?php } ?>
+                console.log("numero de dispositivos:" + <?php echo $devices_num; ?>);
+
+                // Cuando la ventana se carga completamente, se ejecutan las funciones
+                window.onload = function() {
+                    graficosPorCargar.forEach(function(i) {
+                        CargarGraficos(i); // Llama a la función para cada gráfico
+                    });
+                };
+            </script>
 
         </div>
 
-        <!-- ############ PAGE END-->
-
       </div>
-
-    </div>
     <!-- / -->
   </div>
 
@@ -126,12 +208,14 @@ if(!$logged){
 <script src="libs/jquery/jquery-pjax/jquery.pjax.js"></script>
 <script src="html/scripts/ajax.js"></script>
 
+<script src="html/scripts/echarts.min.js"></script>
+
 <?php $tiempo = time(); ?>
 <script type="text/javascript" src="linkPage.js?v=<?php echo $tiempo ?>"></script>
 
 
-<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-
+<!--script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script-->
+<script src="mqtt.min.js"></script> 
 
 <?php $tiempo = time(); ?>
 
@@ -221,8 +305,8 @@ if(!$logged){
           if(topic == '<?php echo $device['mqtt']; ?>'){
 
             if(tipo_topic == "Sensor Caudal"){
-                value_caudal_mqtt = message.toString();
-                $("#caudal_"+alias_topic).html(value_caudal_mqtt);
+                value_temp_mqtt = message.toString();
+                $("#caudal_"+alias_topic).html(value_temp_mqtt);
             }
 
           }
@@ -231,6 +315,16 @@ if(!$logged){
       }else{
         console.log('Topic no Valido, la longitud no es la admitida por nuestro protocolo')
       }
+
+        if(topic == "Dpto/temp/2"){
+          value_temp2_mqtt = message.toString();
+          $("#display_temp2").html(value_temp2_mqtt);
+        }
+
+        if(topic == "Dpto/temp/3"){
+          value_temp3_mqtt = message.toString();
+          $("#display_temp3").html(value_temp3_mqtt);
+        }
 
 
     })
@@ -251,7 +345,94 @@ if(!$logged){
     })
     //*******************************************************************************
 
+    function FechasDatos(device_id){
+      fecha_inicio = $("#fecha_inicio_"+device_id).val();
+      fecha_fin = $("#fecha_fin_"+device_id).val();
 
+      //alert("Cambio de fecha. Inicio:" + fecha_inicio + " Fin:" + fecha_fin);
+      if(fecha_inicio < fecha_fin){
+            ///*//////////////////////////////////////////////////////////////////////////////////////
+            var formData = new FormData();
+            formData.append("CambioFechaMuestreo", true);
+            formData.append("fecha_inicio", fecha_inicio);
+            formData.append("fecha_fin", fecha_fin);
+            /////////////////////////////////////////////////////////////////////////////////////////
+
+            ///////////////funcion de  de escucha al php/////////////
+            var objX = new XMLHttpRequest();
+
+            objX.onreadystatechange = function() {
+              if(objX.readyState === 4) {
+              if(objX.status === 200) {
+                //alert(objBuscarComprobante.responseText);
+                var data = JSON.parse(objX.responseText); //Parsea el Json al objeto anterior.
+
+                if(data.status==true){
+                    alert(data.data);
+                    $("#modal-senstemp-"+device_id).modal('toggle');
+                    window.location.reload(true);
+                }else{
+                    alert(data.error);
+                    $("#modal-senstemp-"+device_id).modal('toggle');
+                }
+
+              } else {
+                alert('Error Code 111: ' +  objX.status);
+                alert('Error Message 222: ' + objX.statusText);
+              }
+              }
+            }
+            objX.open('POST', 'consultas.php',true);
+            objX.send(formData);
+            //*/
+            ////////////////////////////////////////////////////////////////
+      }else{
+        alert("La fecha de Inicio debe ser menor que la fecha de Fin");
+      }
+
+    }
+
+    function CargarGraficos(grafico_numero) {
+        var fechas = datosGraficos[grafico_numero].fechas;
+        var datos = datosGraficos[grafico_numero].datos;
+
+        var fecha_inicio = "<?php echo $_SESSION['users_fechaInicio']; ?>";
+        var fecha_fin = "<?php echo $_SESSION['users_fechaFin']; ?>";
+
+        //console.log("fehaInicio:"+fecha_inicio+"fechaFin"+fecha_fin);
+        //console.log("data:"+datos+"fechas:"+fechas)
+
+        ////////////////////////Tamaño de graficos ////////////////////////
+        var chartElement = document.getElementById("chart_"+grafico_numero);
+        // Verificar el tamaño de la ventana
+        if (window.innerWidth <= 767) {
+          // Establecer el ancho para dispositivos móviles
+          chartElement.style.width = '350px';
+        } else {
+          // Establecer el ancho para dispositivos más grandes
+          chartElement.style.width = '650px';
+        }
+        //////////////////////////////////////////////////////////////////
+
+        // Combinar fechas y datos en pares para el gráfico de dispersión
+        var dataPoints = fechas.map(function(fecha, index) {
+          return [fecha, datos[index]];
+        });
+        var chartDom = document.getElementById('chart_'+grafico_numero);
+        var myChart = echarts.init(chartDom);
+        var option = {
+          tooltip: { trigger: 'axis' },
+          xAxis: { type: 'time', boundaryGap: false, data: fechas, axisLabel: { show: true } },
+          yAxis: { type: 'value', axisLabel: { formatter: '{value}' },splitNumber: 2 },
+          series: [{
+            name: 'Data',
+            type: 'scatter',
+            symbolSize: 3, // Ajusta el tamaño de los puntos
+            data: dataPoints
+          }]
+        };
+        myChart.setOption(option);
+      };
 
 
 

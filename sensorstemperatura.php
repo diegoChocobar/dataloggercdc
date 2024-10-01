@@ -164,7 +164,7 @@ if(!$logged){
 
         </div>
 
-    </div>
+      </div>
     <!-- / -->
   </div>
 
