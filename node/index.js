@@ -9,8 +9,8 @@ var conn = mysql.createConnection({
   host:"localhost",
   user:"admin_dataloggercdc",
   password:"ChDi1088",
-  database:"admin_dataloggercdc"
-
+  database:"admin_dataloggercdc",
+  timezone: "America/Argentina/Buenos_Aires" // Configura la zona horaria
 });
 //*/
 
@@ -44,8 +44,8 @@ setInterval(function(){
 var options = {
   port: 1883,
   host:'dataloggercdc.com',
-  clientId: 'server_' + Math.round(Math.random() * (0- 10000) * -1) ,
-  username: 'server',
+  clientId: 'server_aws' + Math.round(Math.random() * (0- 10000) * -1) ,
+  username: 'server_aws',
   password: '731cd5b647196b6a3647155fae7b3cf58a0a8beede121f6c8ac769a363143301',
   keepalive: 60,
   reconnectPeriod: 5000,
@@ -138,8 +138,10 @@ client.on('error', (error) => {
 })
 ////////////////////////////////////////////////////////////////////////////////////*/
 
-function tratamiento_data(topic,message){
 
+function tratamiento_data(topic,message){
+  const moment = require('moment-timezone');
+  
   var topic_array = topic.split("/");
   var topic_user = topic_array[0];
   var topic_lugar = topic_array[1];
@@ -202,7 +204,9 @@ function tratamiento_data(topic,message){
 
             if(topic == dispositivos[i].mqtt){
               
-              const fechaSistema = new Date();// Obtener la fecha del sistema en formato YYYY-MM-DD   
+              //const fechaSistema = new Date();// Obtener la fecha del sistema en formato YYYY-MM-DD  
+              const fechaSistema = moment().tz("America/Argentina/Buenos_Aires").format("YYYY-MM-DD HH:mm:ss");
+ 
               const query = 'INSERT INTO data (id_user, id_devices, fecha, data, mqtt, observaciones, status) VALUES (?, ?, ?, ?, ?, ?, ?)';
               // Ejecutar la consulta
               conn.query(query, [dispositivos[i].id_user, dispositivos[i].id_devices, fechaSistema, message.toString(), dispositivos[i].mqtt, " ", "1"], (err, results, fields) => {

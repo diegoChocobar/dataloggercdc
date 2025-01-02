@@ -61,7 +61,7 @@ if(!$logged){
                       if($_SESSION['users_fechInicio'] < $_SESSION['users_fechaFin']){
                         //$stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ORDER BY `fecha`");//muestra los datos del ultimo mes
                         //$stmt_data->bind_param("i", $device_id);
-                        $stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` BETWEEN ? AND ? ORDER BY `fecha`");
+                        $stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` BETWEEN ? AND DATE_ADD(?, INTERVAL 1 DAY) ORDER BY `fecha`");
                         $stmt_data->bind_param("iss", $device_id, $_SESSION['users_fechaInicio'], $_SESSION['users_fechaFin']);
                       }else{
                         $stmt_data = $conn->prepare("SELECT `fecha`, `data` FROM `data` WHERE `id_devices` = ? AND `fecha` >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK) ORDER BY `fecha`");//muestra los datos de la ultima semana
@@ -88,7 +88,9 @@ if(!$logged){
                       <div class="col-xs-8 col-sm-2 d-flex">
                         <div class="box p-a flex-fill d-flex flex-column">
                           <div class="pull-left m-r">
-                            <span class="w-48 rounded accent" title="<?php echo htmlspecialchars($devices[$i]['lugar'] . '->' . $devices[$i]['ubicacion']); ?>">
+                            <span class="w-48 rounded accent" 
+                                  title="<?php echo htmlspecialchars($devices[$i]['lugar'] . '->' . $devices[$i]['ubicacion']); ?>" 
+                                  ondblclick="setValor('<?php echo $devices[$i]['serie']; ?>');">
                               <i class="fa fa-home"></i>
                             </span>
                           </div>
@@ -102,7 +104,10 @@ if(!$logged){
                       <div class="col-xs-8 col-sm-6 d-flex">
                         <div class="box p-a flex-fill d-flex flex-column">
                           <div class="flex-grow-1">
-                            <div id="chart_<?php echo $i; ?>" style="height:90%; width:650PX;" data-toggle="modal" data-target="#modal-senstemp-<?php echo $devices[$i]['id_devices']; ?>"></div>
+                            <div id="chart_<?php echo $i; ?>" 
+                                style="height:90%; width:650px;" 
+                                ondblclick="$('#modal-senstemp-<?php echo $devices[$i]['id_devices']; ?>').modal('show');">
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -434,8 +439,18 @@ if(!$logged){
         myChart.setOption(option);
       };
 
+    
+    function setValor(serie) {
+        alert(`Pedido de valor de sensor, serie: ${serie}`);
+        var topic_configurar = serie + "/read/sensor/value/x"; 
+        var topic_publish = "?" ;
 
+        client.publish(topic_configurar, topic_publish, (error) => {
+          console.log(error || 'Mensaje enviado!!!-->', topic_configurar,'-->',topic_publish)
+        })
+    }
 
+  
   </script>
 
 

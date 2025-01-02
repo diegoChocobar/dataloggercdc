@@ -98,4 +98,13 @@ Version 1.13 --> 01/10/2024
         * Se agrego logica para detectar el tamaño de pantalla en la que se esta ejecutando el programa y de esa forma poder adaptar el tamaño de los graficos segun convenga.
         * Se agrego un modal en el cual podemos modificar las fecha de Inicio y Fin para la visualizacion de los datos
         * Se agrego redireccion a pagina login en caso de caducar el tiempo de conexion en pagina sensorscaudal
-    
+
+Version 1.14 --> 01/10/2024 
+    - Se puso en marcha index.js que el software que corre del aldo del servidor encargado del procesamiento de datos, tanto de los sensores como los provenientes de la web.
+    - sensortemperatura.php & sensorcaudal.php:
+        * Ahora se accede al modal de modificacion de fechar con "doble clic" sobre el grafico del sensor.
+        * Se modifico logica en consulta a DB para que la fechaFin sea un valor inclusive de la busqueda.
+        * Cuando se hace "doble clic" sobre el sensor envia peticion del dato al dispositivo asociado.
+        *
+
+     
