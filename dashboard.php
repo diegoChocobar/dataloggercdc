@@ -47,49 +47,40 @@ if(!$logged){
 
         <!-- SECCION CENTRAL -->
         <div class="padding">
-          <!-- VALORES EN TIEMPO REAL -->
-          <div class="row">
-            <div class="col-xs-12 col-sm-4">
-              <div class="box p-a">
-                <div class="pull-left m-r">
-                  <span class="w-48 rounded  accent">
-                    <i class="fa fa-home"></i>
-                  </span>
+          <div class="container-fluid">
+          <div class="row justify-content-center">
+                <?php
+                  $result = $conn->query("SELECT * FROM `devices` WHERE `id_user`='".$user_id."' AND `status`='1' order by `mqtt` ");
+                  $devices = $result->fetch_all(MYSQLI_ASSOC);
+                  $devices_num = count($devices);
+                ?>
+              
+                <?php for($i=0;$i<$devices_num;$i++){ 
+                        // Obtener los datos para el gráfico
+                        $device_id = $devices[$i]['id_devices'];
+                  ?>
+                      
+                <!-- VALORES EN TIEMPO REAL -->
+                <div class="col-6 col-md-4 col-lg-3 mb-2 d-flex">
+                  <div class="box p-2 flex-fill d-flex flex-column">
+                    <div class="pull-left m-r">
+                      <span class="w-48 rounded accent" 
+                            title="<?php echo htmlspecialchars($devices[$i]['lugar'] . '->' . $devices[$i]['ubicacion']); ?>" 
+                            ondblclick="reloadValor('<?php echo $devices[$i]['serie']; ?>',true);">
+                            <i class="fa fa-home"></i>
+                      </span>
+                    </div>
+                    <div class="clear">
+                      <h4 class="m-0 text-lg _300"><b id="sensor_<?php echo htmlspecialchars($devices[$i]['nombre']); ?>">--</b><span class="text-sm"> </span></h4>
+                      <small class="text-muted"><?php echo htmlspecialchars($devices[$i]['nombre']); ?></small>
+                    </div>
+                  </div>
                 </div>
-                <div class="clear">
-                  <h4 class="m-0 text-lg _300"><b id="display_temp1"><script type="text/javascript">$("#display_temp1").html(value_temp1_mqtt);</script></b><span class="text-sm"> °C</span></h4>
-                  <small class="text-muted">Temp 1</small>
-                </div>
-              </div>
-            </div>
-            <div class="col-xs-6 col-sm-4">
-              <div class="box p-a">
-                <div class="pull-left m-r">
-                  <span class="w-48 rounded primary">
-                    <i class="fa fa-gears"></i>
-                  </span>
-                </div>
-                <div class="clear">
-                  <h4 class="m-0 text-lg _300"><b id="display_temp2"><script type="text/javascript">$("#display_temp2").html(value_temp2_mqtt);</script></b><span class="text-sm"> °C</span></h4>
-                  <small class="text-muted">Temp 2</small>
-                </div>
-              </div>
-            </div>
-            <div class="col-xs-6 col-sm-4">
-              <div class="box p-a">
-                <div class="pull-left m-r">
-                  <span class="w-48 rounded warn">
-                    <i class="fa fa-flash"></i>
-                  </span>
-                </div>
-                <div class="clear">
-                  <h4 class="m-0 text-lg _300"><b id="display_tension"><script type="text/javascript">$("#display_tension").html(value_tension_mqtt);</script></b><span class="text-sm"> °C</span></h4>
-                  <small class="text-muted">Temp 3</small>
-                </div>
-              </div>
-            </div>
+                <!-- FIN VALORES EN TIEMPO REAL -->
+
+                <?php } ?>
           </div>
-          
+          </div>
         </div>
 
         <!-- ############ PAGE END-->
@@ -149,208 +140,162 @@ if(!$logged){
 
 <?php $tiempo = time(); ?>
 
-<script type="text/javascript" src="Funciones.js?v=<?php echo $tiempo ?>"></script>
 
-
-  <!--script type="text/javascript">
+<script type="text/javascript">
 
 
 
-    if('<?php echo $_SESSION['conection_status_emqx']; ?>' == "ON"){
-      console.log('NO nos tenemos que conectar el brouker EMQX')
+if('<?php echo $_SESSION['conection_status_emqx']; ?>' == "ON"){
+  console.log('NO nos tenemos que conectar el brouker EMQX')
+}else{
+  console.log('Conectando al brouker EMQX...')
+  console.log('<?php echo "Status Conection:" . $_SESSION['conection_status_emqx']; ?>')
+  <?php //$_SESSION['conection_status_emqx']="ON"; ?>
+}
+
+
+/*
+*******************************************************************************
+*******************    CONEXION SETUP     *************************************
+*******************************************************************************
+*/
+//Esta parte esta funcionado para conexion por mqtt (demora mucho)
+var options = {
+  connectTimeout: 2000,
+  // Authentication
+  clientId: '<?php echo "web_" . $user_name . rand(1,999) ; ?>',
+  username: '<?php echo $user_name; ?>',
+  password: '<?php echo $user_password; ?>',
+
+  keepalive: 60, //tiempo de mensaje interno hacia el brouker para avisar que estamos conectados
+  clean: false,   //iniciamos en una session limpia (es una session no percistente)
+}
+
+
+// WebSocket connect url
+var WebSocket_URL = 'wss://dataloggercdc.com:8094/mqtt'
+
+//var client = mqtt.connect(WebSocket_URL, options)
+var client = mqtt.connect(WebSocket_URL, options)
+
+
+
+client.on('connect', () => {//original
+
+  console.log('Conexion exito con brouker')
+  <?php $_SESSION['conection_status_emqx'] = "ON"; ?>
+  console.log('<?php echo "Status Conection:" . $_SESSION['conection_status_emqx']; ?>')
+  top_topic = '<?php echo $user_name; ?>'+'/#';
+
+  client.subscribe(top_topic, { qos: 0 }, (error) => {
+    if (!error) {
+      console.log('Suscripción exitosa topics ->'+top_topic);
+      alert ('Suscripción exitosa topics ->'+top_topic);
     }else{
-      console.log('Conectando al brouker EMQX...')
-      console.log('<?php echo $_SESSION['conection_status_emqx']; ?>')
-      <?php $_SESSION['conection_status_emqx']="ON"; ?>
+      console.log('Suscripción fallida!')
+      alert ('Suscripción fallida topics ->'+top_topic);
+    }
+  })
+
+
+})
+
+client.on('message', (topic, message) => {
+
+  console.log('Mensaje recibido: ',topic, ' -> ', message.toString())
+
+  let arr_topic = topic.split('/');
+  var tamaño_topic = arr_topic.length;
+
+  if(tamaño_topic == 5){
+    var top_topic = arr_topic[tamaño_topic-5];
+    var seccion_topic = arr_topic[tamaño_topic-4];
+    var subseccion_topic = arr_topic[tamaño_topic-3];
+    var tipo_topic = arr_topic[tamaño_topic-2];
+    var alias_topic = arr_topic[tamaño_topic-1];
+  }
+  if(tamaño_topic == 6){
+    var top_topic = arr_topic[tamaño_topic-6];
+    var seccion_topic = arr_topic[tamaño_topic-5];
+    var subseccion_topic = arr_topic[tamaño_topic-4];
+    var tipo_topic = arr_topic[tamaño_topic-3];
+    var alias_topic = arr_topic[tamaño_topic-2];
+    var function_topic = arr_topic[tamaño_topic-1];
+    var mqtt_topic = top_topic + '/' + seccion_topic + '/' + subseccion_topic + '/' + tipo_topic + '/' + alias_topic;
+  }
+
+
+
+
+  if(tamaño_topic == 5){//recibimos un mensaje con longitud 5/caracteristica valida
+
+    console.log('tamaño topic: ', tamaño_topic,'\ntop: ', top_topic,'\nseccion: ', seccion_topic,'\nSub seccion: ', subseccion_topic,'\ntipo: ', tipo_topic,'\nalias: ', alias_topic,'\nvalor: ', message.toString())
+
+    <?php
+      $result = $conn->query("SELECT * FROM `devices` WHERE `id_user` = '$user_id' ");
+      $devices = $result->fetch_all(MYSQLI_ASSOC);
+    ?>
+    <?php foreach ($devices as $device ) { ?>
+      if(topic == '<?php echo $device['mqtt']; ?>'){
+          value_temp_mqtt = message.toString();
+          $("#sensor_"+alias_topic).html(value_temp_mqtt);
+      }
+    <?php } ?>
+
+  }  
+  if(tamaño_topic == 6){//recibimos un mensaje con longitud 6/caracteristica valida
+
+    console.log('tamaño topic: ', tamaño_topic,'\ntop: ', top_topic,'\nseccion: ', seccion_topic,'\nSub seccion: ', subseccion_topic,'\ntipo: ', tipo_topic,'\nalias: ', alias_topic,'\nfunction: ', function_topic,'\nvalor: ', message.toString())
+    //console.log('mqtt_topic: ', mqtt_topic)
+    <?php
+      $result = $conn->query("SELECT * FROM `devices` WHERE `id_user` = '$user_id' ");
+      $devices = $result->fetch_all(MYSQLI_ASSOC);
+    ?>
+    <?php foreach ($devices as $device ) { ?>
+      if(mqtt_topic == '<?php echo $device['mqtt']; ?>'){
+          value_temp_mqtt = message.toString();
+          $("#sensor_"+alias_topic).html(value_temp_mqtt);
+      }
+    <?php } ?>
+
+  }
+
+
+})
+
+///////////////////////////////////////////////////////////////////////////////////
+client.on('error', (error) => {
+  console.log('Connect Error:', error)
+  $_SESSION['conection_status_emqx'] = "OFF"
+})
+//*******************************************************************************
+    window.onload = function() {
+      console.log("La página se ha cargado.");
+
+      <?php
+        $result = $conn->query("SELECT * FROM `devices` WHERE `id_user`='".$user_id."' AND `status`='1' order by `mqtt` ");
+        $devices = $result->fetch_all(MYSQLI_ASSOC);
+        $devices_num = count($devices);
+      ?>
+      <?php foreach ($devices as $device ) { ?>
+          reloadValor(<?php echo $device['serie']; ?>,false)
+      <?php } ?>
+
+
+
+
+    };
+    function reloadValor(serie,mensaje) {
+        if(mensaje == true){alert(`Pedido de valor de sensor, serie: ${serie}`);}
+        var topic_configurar = serie + "/reload/sensor/value/x"; 
+        var topic_publish = "?" ;
+
+        client.publish(topic_configurar, topic_publish, (error) => {
+          console.log(error || 'Mensaje enviado!!!-->', topic_configurar,'-->',topic_publish)
+        })
     }
 
-
-    /*
-    *******************************************************************************
-    *******************    CONEXION SETUP     *************************************
-    *******************************************************************************
-    */
-    //Esta parte esta funcionado para conexion por mqtt (demora mucho)
-    var options = {
-      connectTimeout: 2000,
-      // Authentication
-      clientId: '<?php echo "web_" . $user_name . rand(1,999) ; ?>',
-      //username: '<?php echo $user_name; ?>',
-      //password: '123456',
-
-      keepalive: 60, //tiempo de mensaje interno hacia el brouker para avisar que estamos conectados
-      clean: true,   //iniciamos en una session limpia (es una session no percistente)
-    }
-
-
-    // WebSocket connect url
-    var WebSocket_URL = 'ws://dataloggercdc.com:8093/mqtt'
-
-    //var client = mqtt.connect(WebSocket_URL, options)
-    var client = mqtt.connect(WebSocket_URL, options)
-
-
-
-    client.on('connect', () => {//original
-
-      console.log('Conexion exito con brouker')
-      <?php $_SESSION['conection_status_emqx'] = "ON"; ?>
-      console.log('<?php echo $_SESSION['conection_status_emqx']; ?>')
-
-      //Subscripcion a topicos
-      /*
-      client.subscribe('/casa/temperatura/#', { qos: 0 }, (error) => {
-        if (!error) {
-          console.log('Suscripción exitosa topics -> /casa/temperatura/#')
-          //alert ("Suscripción exitosa topics -> /casa/temperatura/#");
-        }else{
-          console.log('Suscripción fallida!')
-          alert ("Suscripción fallida topics -> /casa/temperatura/#");
-        }
-      })
-      //Subscripcion a topicos
-      client.subscribe('/casa/tension/#', { qos: 0 }, (error) => {
-        if (!error) {
-          console.log('Suscripción exitosa topics -> /casa/tension/#')
-          //alert ('Suscripción exitosa topics');
-        }else{
-          console.log('Suscripción fallida!')
-          alert ('Suscripción fallida topics -> /casa/tension/#');
-        }
-      })
-
-      client.subscribe('/casa/led/#', { qos: 0 }, (error) => {
-        if (!error) {
-          console.log('Suscripción exitosa topics -> /casa/led/#')
-          alert ('Suscripción exitosa topics');
-        }else{
-          console.log('Suscripción fallida!')
-          alert ('Suscripción fallida topics -> /casa/led/#');
-        }
-      })
-      */
-      client.subscribe('/casa/#', { qos: 0 }, (error) => {
-        if (!error) {
-          console.log('Suscripción exitosa topics -> /casa/#')
-          alert ('Suscripción exitosa topics');
-        }else{
-          console.log('Suscripción fallida!')
-          alert ('Suscripción fallida topics -> /casa/#');
-        }
-      })
-
-
-    })
-
-    client.on('message', (topic, message) => {
-
-      console.log('Mensaje recibido bajo tópic: ', topic, ' -> ', message.toString())
-
-      if(topic == "/casa/temp/1"){
-        value_temp1_mqtt = message.toString();
-        $("#display_temp1").html(value_temp1_mqtt);
-      }
-
-      if(topic == "/casa/temp/2"){
-        value_temp2_mqtt = message.toString();
-        $("#display_temp2").html(value_temp2_mqtt);
-      }
-
-      if(topic == "/casa/tension"){
-        value_tension_mqtt = message.toString();
-        $("#display_tension").html(value_tension_mqtt);
-      }
-
-      if(topic == "/casa/led/1"){
-        value_led_mqtt = message.toString();
-        console.log("Led 1: " + value_led_mqtt);
-        if(value_led_mqtt == "ON"){
-          $("#led1").removeClass("black");
-          $("#led1").addClass("green");
-        }else{
-          if(value_led_mqtt == "OFF"){
-            $("#led1").removeClass("green");
-            $("#led1").addClass("black");
-          }
-        }
-      }
-
-      if(topic == "/casa/led/2"){
-        value_led_mqtt = message.toString();
-        console.log("Led 2: " + value_led_mqtt);
-        if(value_led_mqtt == "ON"){
-          $("#led2").removeClass("black");
-          $("#led2").addClass("warn");
-        }else{
-          if(value_led_mqtt == "OFF"){
-            $("#led2").removeClass("warn");
-            $("#led2").addClass("black");
-          }
-        }
-      }
-
-      if(topic == "/casa/led/3"){
-        value_led_mqtt = message.toString();
-        console.log("Led 3: " + value_led_mqtt);
-        if(value_led_mqtt == "ON"){
-          $("#led3").removeClass("black");
-          $("#led3").addClass("warn");
-        }else{
-          if(value_led_mqtt == "OFF"){
-            $("#led3").removeClass("warn");
-            $("#led3").addClass("black");
-          }
-        }
-      }
-
-
-    })
-    /*
-    client.on('reconnect', (error) => {
-      console.log('Reconectando....:', error)
-      <?php $_SESSION['conection_status_emqx'] = "OFF"; ?>
-      console.log('<?php echo $_SESSION['conection_status_emqx']; ?>')
-    })
-    */
-    client.on('error', (error) => {
-      console.log('Connect Error:', error)
-      conection_status = "OFF"
-    })
-    //*******************************************************************************
-
-
-
-     /*
-     *******************************************************************************
-     *******************    PROCESOS     *************************************
-     *******************************************************************************
-     */
-
-     function proceso_pulsador(x){
-       var input_valor = "#input_pulsador" + x;
-       var topic_publish = "/casa/pulsador/" + x;
-
-
-         if($(input_valor).is(":checked")){
-            //console.log("Encendido: Led " + x);
-            client.publish(topic_publish, 'ON', (error) => {
-              console.log(error || 'Mensaje enviado!!!>', topic_publish, 'ON')
-            })
-         }else{
-           //console.log("Apagado: Led" + x);
-
-           client.publish(topic_publish, 'OFF', (error) => {
-             console.log(error || 'Mensaje enviado!!!>', topic_publish, 'OFF')
-           })
-         }
-     }
-
-     //*******************************************************************************
-
-
-
-
-  </script-->
+</script>
 
 
 <!-- endbuild -->

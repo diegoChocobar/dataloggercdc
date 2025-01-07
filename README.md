@@ -108,4 +108,7 @@ Version 1.14 --> 01/10/2024
 
 Version 1.15 --> 07/01/2025 
     - Cambio de logo. Ahora usamos el de CDCELECTRONICS
+    - dashboard.php:    
+        * Se visualizan todos lo sensores que posee el usuario.
+        * Cada vez que se recarga la pagina solicitamos a las placas que nos envien el estado de sus sensores. Este pedido de valores no actualiza la base de daots.
      
