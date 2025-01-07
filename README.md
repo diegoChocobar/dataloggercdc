@@ -105,6 +105,7 @@ Version 1.14 --> 01/10/2024
         * Ahora se accede al modal de modificacion de fechar con "doble clic" sobre el grafico del sensor.
         * Se modifico logica en consulta a DB para que la fechaFin sea un valor inclusive de la busqueda.
         * Cuando se hace "doble clic" sobre el sensor envia peticion del dato al dispositivo asociado.
-        *
 
+Version 1.15 --> 07/01/2025 
+    - Cambio de logo. Ahora usamos el de CDCELECTRONICS
      

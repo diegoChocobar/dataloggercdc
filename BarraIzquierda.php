@@ -7,9 +7,9 @@
         <div class="navbar no-radius">
           <!-- brand -->
           <a class="navbar-brand">
-            <div ui-include="'assets/images/logo.svg'"></div>
-            <img src="assets/images/logo.png" alt="." class="hide">
-            <span class="hidden-folded inline">CdC Electronics</span>
+            <div ui-include="'assets/images/logo_CDCELECTRONICS_T.svg'"></div>
+            <img src="assets/images/logo_CDCELECTRONICS_T.png" alt="." class="hide">
+            <span class="hidden-folded inline">cdcelectronics</span>
           </a>
           <!-- / brand -->
         </div>
