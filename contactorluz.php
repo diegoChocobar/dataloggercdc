@@ -51,18 +51,38 @@ if(!$logged){
           <!-- INDICADORES LUZ EN TIEMPO REAL -->
               <div class="row">
                 <?php
-                  $result = $conn->query("SELECT * FROM `devices` WHERE `id_user`='".$user_id."' AND `status`='1' order by `mqtt` ");
+                  //$result = $conn->query("SELECT * FROM `devices` WHERE `id_user`='".$user_id."' AND `status`='1' order by `mqtt` ");
+                  // Consulta con INNER JOIN para obtener datos de ambas tablas
+                  $result = $conn->query("
+                                          SELECT devices.*, users.*
+                                          FROM devices 
+                                          INNER JOIN users 
+                                          ON devices.id_user = users.id 
+                                          WHERE devices.id_user = '".$user_id."' 
+                                          AND devices.status = '1' 
+                                          ORDER BY devices.mqtt
+                                          ");
                   $devices = $result->fetch_all(MYSQLI_ASSOC);
                   $devices_num = count($devices);
+                  // Mostrar devices_num en la consola del navegador
+                  //echo "<script>console.log('devices_num: " . $devices_num . "');</script>";
+                  
+
                   $coma = ",";
                   $comilla = "'";
                 ?>
                   <?php for($i=0;$i<$devices_num;$i++){ ?>
                     <?php if($devices[$i]['tipo'] == "Contactor Luz" ){ ?>
+                      <?php //echo "<script>console.log('///////////////////////////// ');</script>"; ?>
+                      <?php //echo "<script>console.log('username: " . $devices[$i]['username'] . "');</script>"; ?>
+                      <?php //echo "<script>console.log('id_devices: " . $devices[$i]['id_devices'] . "');</script>"; ?>
+                      <?php //echo "<script>console.log('id_user: " . $devices[$i]['id'] . "');</script>"; ?>
+                      <?php //$topic_enviar = $devices[$i]['serie'] . "/write/contactor/value"; ?>
+                      <?php //echo "<script>console.log('///////////////////////////// ');</script>"; ?>
                             <div class="col-xs-12 col-sm-4">
                               <div class="box p-a">
                                 <div class="pull-left m-r">
-                                  <span class="w-48 rounded black" value ="black" id ="Luz_<?php echo $devices[$i]['id_devices'] ?>" name ="Luz_<?php echo $devices[$i]['id_devices'] ?>" title="<?php echo $devices[$i]['lugar']."->".$devices[$i]['ubicacion'] ?>" onclick="InterruptorLuz(<?php echo $devices[$i]['id_devices'] . $coma . $comilla . $devices[$i]['mqtt'] . $comilla ?>);">
+                                  <span class="w-48 rounded black" value ="black" id ="Luz_<?php echo $devices[$i]['id_devices'] ?>" name ="Luz_<?php echo $devices[$i]['id_devices'] ?>" title="<?php echo $devices[$i]['lugar']."->".$devices[$i]['ubicacion'] ?>" onclick="InterruptorLuz(<?php echo $devices[$i]['id_devices'] . $coma . $comilla . $devices[$i]['serie'] . '/write/contactor/value' . $comilla ?>);">
                                     <i class="fa fa-home"></i>
                                   </span>
                                 </div>
@@ -228,14 +248,14 @@ if(!$logged){
           console.log("La Luz " + x + " esta apagada. La debemos prender");
           Luz.classList.remove('black');
           Luz.classList.add('green');
-          client.publish(topic, 'Prender', (error) => {
+          client.publish(topic, '1', (error) => {
               console.log(error || 'Mensaje enviado!!!>', topic, 'Prender')
             })
         }else{
           console.log("La Luz " + x + " esta encendida. La debemos apagar");
           Luz.classList.remove('green');
           Luz.classList.add('black');
-          client.publish(topic, 'Apagar', (error) => {
+          client.publish(topic, '0', (error) => {
               console.log(error || 'Mensaje enviado!!!>', topic, 'Apagar')
             })
         }

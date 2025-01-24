@@ -111,4 +111,9 @@ Version 1.15 --> 07/01/2025
     - dashboard.php:    
         * Se visualizan todos lo sensores que posee el usuario.
         * Cada vez que se recarga la pagina solicitamos a las placas que nos envien el estado de sus sensores. Este pedido de valores no actualiza la base de daots.
-     
+
+
+Version 1.16 --> 24/01/2025 
+    - contactorluz.php:    
+        * Ampliamos la consulta a la base de datos con un JOIN entre la tabla devices y users, para tener mas datos relacionados a los disposivos de "contactor de luz" asociado al usuario
+        * Se añade logica para prender y apagar el boton de luz
